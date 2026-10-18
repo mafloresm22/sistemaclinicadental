@@ -1,0 +1,190 @@
+/* =========================================================
+   ESTILOS: MÓDULO ESPECIALIDADES (VISTA PRINCIPAL)
+   ========================================================= */
+
+// Caja de búsqueda
+.search-box {
+  .search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    color: #94a3b8;
+    pointer-events: none;
+  }
+
+  .search-input {
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease-in-out;
+    background-color: #f8fafc;
+
+    &:focus {
+      background-color: #ffffff;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+  }
+
+  .btn-clear {
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: #64748b;
+    }
+  }
+}
+
+// Botón Nueva Especialidad
+.btn-nueva-especialidad {
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25) !important;
+  }
+}
+
+// Tabla Personalizada
+.custom-table {
+  border-collapse: separate;
+  border-spacing: 0;
+
+  thead th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f1f5f9;
+    }
+
+    &:last-child td {
+      border-bottom: none;
+    }
+  }
+}
+
+// Botones de Acción (Editar / Eliminar)
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.82rem;
+  font-weight: 500;
+  padding: 0.35rem 0.65rem;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+
+  &.btn-edit {
+    color: #2563eb;
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+
+    &:hover {
+      background-color: #2563eb;
+      color: #ffffff;
+      border-color: #2563eb;
+    }
+  }
+
+  &.btn-delete {
+    color: #dc2626;
+    background-color: #fef2f2;
+    border-color: #fecaca;
+
+    &:hover {
+      background-color: #dc2626;
+      color: #ffffff;
+      border-color: #dc2626;
+    }
+  }
+}
+
+// Selector de tamaño de página
+.select-page-size {
+  width: auto;
+  min-width: 68px;
+  border-radius: 8px;
+  border-color: #e2e8f0;
+  font-size: 0.85rem;
+  padding: 0.25rem 1.75rem 0.25rem 0.65rem;
+  background-color: #f8fafc;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:focus {
+    background-color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+}
+
+// Paginación personalizada
+.custom-pagination {
+  .page-item {
+    margin: 0 2px;
+
+    .page-link {
+      color: #475569;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px !important;
+      padding: 0.35rem 0.65rem;
+      font-weight: 500;
+      min-width: 32px;
+      text-align: center;
+      transition: all 0.15s ease-in-out;
+
+      &:hover:not([disabled]) {
+        background-color: #f1f5f9;
+        color: #1e293b;
+        border-color: #cbd5e1;
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+      }
+    }
+
+    &.active .page-link {
+      background-color: #3b82f6;
+      border-color: #3b82f6;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 4px rgba(59, 130, 246, 0.25);
+    }
+
+    &.disabled .page-link {
+      color: #cbd5e1;
+      background-color: #f8fafc;
+      border-color: #f1f5f9;
+      cursor: not-allowed;
+      opacity: 0.8;
+    }
+  }
+}
+

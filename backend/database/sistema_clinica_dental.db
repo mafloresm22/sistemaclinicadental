@@ -1,0 +1,462 @@
+Project clinica_dental {
+  database_type: 'MySQL'
+}
+
+// ================= ENUMS =================
+Enum estado_general {
+  Activo
+  Inactivo
+}
+
+Enum dia_semana {
+  Lunes
+  Martes
+  Miercoles
+  Jueves
+  Viernes
+  Sabado
+  Domingo
+}
+
+Enum estado_cita {
+  Pendiente
+  Confirmada
+  En_atencion
+  Completada
+  Cancelada
+  No_asistio
+  Reprogramada
+}
+
+Enum estado_pago {
+  Pendiente
+  Parcial
+  Pagado
+}
+
+Enum metodo_pago {
+  Efectivo
+  Tarjeta
+  Yape_Plin
+  Transferencia
+  Otro
+}
+
+Enum tipo_documento {
+  DNI
+  CE
+  Pasaporte
+}
+
+Enum sexo {
+  Masculino
+  Femenino
+  Otro
+}
+
+Enum tipo_antecedente {
+  Alergia
+  Enfermedad
+  Medicacion
+  Cirugia
+  Otro
+}
+
+Enum superficie_dental {
+  Oclusal
+  Incisal
+  Mesial
+  Distal
+  Vestibular
+  Lingual
+  Palatina
+  Completa
+}
+
+Enum condicion_dental {
+  Sano
+  Caries
+  Obturado
+  Endodoncia
+  Corona
+  Implante
+  Fractura
+  Ausente
+  Otro
+}
+
+Enum estado_plan {
+  Propuesto
+  Aprobado
+  En_curso
+  Finalizado
+  Cancelado
+}
+
+Enum estado_item_plan {
+  Pendiente
+  En_proceso
+  Realizado
+  Cancelado
+}
+
+Enum tipo_comprobante {
+  Boleta
+  Factura
+  Nota_Venta
+  Recibo
+}
+
+Enum estado_comprobante {
+  Emitido
+  Anulado
+}
+
+// ================= SEGURIDAD =================
+Table Roles {
+  idRol int [pk, increment]
+  nombreRol varchar(50) [unique, not null]
+  descripcionRol varchar(150)
+}
+
+Table Permisos {
+  idPermiso int [pk, increment]
+  codigoPermiso varchar(80) [unique, not null, note: 'ej: citas.crear']
+  descripcionPermiso varchar(150)
+}
+
+Table Roles_Permisos {
+  rolId int [not null]
+  permisoId int [not null]
+
+  indexes {
+    (rolId, permisoId) [pk]
+  }
+}
+
+Table Usuarios {
+  idUsuario int [pk, increment]
+  nombreUsuario varchar(50) [unique, not null]
+  passwordHash varchar(255) [not null]
+  estadoUsuario estado_general [not null, default: 'Activo']
+  ultimoLogin datetime
+  rolId int [not null]
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt datetime [default: `CURRENT_TIMESTAMP`]
+  deletedAt datetime
+}
+
+// ================= ESTRUCTURA CLINICA =================
+Table Sedes {
+  idSede int [pk, increment]
+  nombreSede varchar(100) [not null]
+  direccionSede varchar(200)
+  telefonoSede varchar(20)
+  estadoSede estado_general [not null, default: 'Activo']
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+Table Consultorios {
+  idConsultorio int [pk, increment]
+  nombreConsultorio varchar(80) [not null]
+  estadoConsultorio estado_general [not null, default: 'Activo']
+  sedeId int [not null]
+}
+
+// ================= PERSONAL =================
+Table Especialidades {
+  idEspecialidad int [pk, increment]
+  nombreEspecialidad varchar(100) [unique, not null]
+  descripcionEspecialidad varchar(200)
+}
+
+Table Doctores {
+  idDoctor int [pk, increment]
+  nombreDoctor varchar(80) [not null]
+  apellidosDoctor varchar(100) [not null]
+  tipoDocumento tipo_documento [not null, default: 'DNI']
+  documentoDoctor varchar(20) [unique, not null]
+  nroColegiatura varchar(20) [unique, note: 'COP']
+  celularDoctor varchar(20)
+  correoDoctor varchar(120) [unique]
+  estadoDoctor estado_general [not null, default: 'Activo']
+  usuarioId int [unique, not null]
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt datetime [default: `CURRENT_TIMESTAMP`]
+  deletedAt datetime
+}
+
+Table Doctores_Especialidades {
+  doctorId int [not null]
+  especialidadId int [not null]
+
+  indexes {
+    (doctorId, especialidadId) [pk]
+  }
+}
+
+Table Empleados {
+  idEmpleado int [pk, increment]
+  nombreEmpleado varchar(80) [not null]
+  apellidosEmpleado varchar(100) [not null]
+  documentoEmpleado varchar(20) [unique, not null]
+  celularEmpleado varchar(20)
+  cargoEmpleado varchar(60)
+  estadoEmpleado estado_general [not null, default: 'Activo']
+  usuarioId int [unique, not null]
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+  deletedAt datetime
+}
+
+Table Horarios_Atencion {
+  idHorarioAtencion int [pk, increment]
+  diaSemana dia_semana [not null]
+  horaInicio time [not null]
+  horaFin time [not null]
+  doctorId int [not null]
+  sedeId int [not null]
+
+  indexes {
+    (doctorId, sedeId, diaSemana, horaInicio) [unique]
+  }
+}
+
+Table Bloqueos_Agenda {
+  idBloqueo int [pk, increment]
+  doctorId int [note: 'NULL = bloqueo general de la sede']
+  sedeId int
+  fechaHoraInicio datetime [not null]
+  fechaHoraFin datetime [not null]
+  motivoBloqueo varchar(150)
+  creadoPorId int
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+// ================= PACIENTES Y CLINICA =================
+Table Pacientes {
+  idPaciente int [pk, increment]
+  nombrePaciente varchar(80) [not null]
+  apellidosPaciente varchar(100) [not null]
+  tipoDocumento tipo_documento [not null, default: 'DNI']
+  documentoPaciente varchar(20) [not null]
+  fechaNacimientoPaciente date
+  sexoPaciente sexo
+  celularPaciente varchar(20)
+  correoPaciente varchar(120)
+  direccionPaciente varchar(200)
+  contactoEmergenciaNombre varchar(100)
+  contactoEmergenciaCelular varchar(20)
+  apoderadoId int [note: 'Para menores de edad']
+  estadoPaciente estado_general [not null, default: 'Activo']
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt datetime [default: `CURRENT_TIMESTAMP`]
+  deletedAt datetime
+
+  indexes {
+    (tipoDocumento, documentoPaciente) [unique]
+    apellidosPaciente
+  }
+}
+
+Table Antecedentes_Paciente {
+  idAntecedente int [pk, increment]
+  pacienteId int [not null]
+  tipoAntecedente tipo_antecedente [not null]
+  descripcionAntecedente text
+  fechaRegistro datetime [not null, default: `CURRENT_TIMESTAMP`]
+  registradoPorId int
+}
+
+Table Piezas_Dentales {
+  idPieza int [pk, note: 'Codigo FDI: 11-48 y 51-85']
+  nombrePieza varchar(60) [not null]
+}
+
+Table Odontograma_Registros {
+  idRegistro int [pk, increment]
+  pacienteId int [not null]
+  piezaId int [not null]
+  superficie superficie_dental
+  condicion condicion_dental [not null]
+  observacion varchar(200)
+  citaId int
+  registradoPorId int
+  fechaRegistro datetime [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (pacienteId, piezaId)
+  }
+}
+
+// ================= TRATAMIENTOS Y PLANES =================
+Table Tratamientos {
+  idTratamiento int [pk, increment]
+  nombreTratamiento varchar(120) [not null]
+  descripcionTratamiento varchar(255)
+  costoBase decimal(10,2) [not null]
+  duracionEstimadaMin int
+  estadoTratamiento estado_general [not null, default: 'Activo']
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+  deletedAt datetime
+}
+
+Table Planes_Tratamiento {
+  idPlan int [pk, increment]
+  pacienteId int [not null]
+  doctorId int [not null]
+  descripcionPlan varchar(255)
+  estadoPlan estado_plan [not null, default: 'Propuesto']
+  fechaCreacion datetime [not null, default: `CURRENT_TIMESTAMP`]
+  fechaAprobacion datetime
+  updatedAt datetime [default: `CURRENT_TIMESTAMP`]
+  deletedAt datetime
+}
+
+Table Planes_Tratamiento_Detalle {
+  idPlanDetalle int [pk, increment]
+  planId int [not null]
+  tratamientoId int [not null]
+  piezaId int
+  superficie superficie_dental
+  cantidad int [not null, default: 1]
+  costoEstimado decimal(10,2) [not null]
+  descuento decimal(10,2) [not null, default: 0]
+  estadoItem estado_item_plan [not null, default: 'Pendiente']
+}
+
+// ================= CITAS =================
+Table Citas {
+  idCita int [pk, increment]
+  fechaHoraInicio datetime [not null]
+  fechaHoraFin datetime [not null]
+  estadoCita estado_cita [not null, default: 'Pendiente']
+  motivoConsulta text
+  motivoCancelacion varchar(200)
+  notasEvolucion text
+  estadoPagoCita estado_pago [not null, default: 'Pendiente']
+  pacienteId int [not null]
+  doctorId int [not null]
+  sedeId int [not null]
+  consultorioId int [note: 'Debe pertenecer a sedeId (validar en backend)']
+  planId int
+  citaOrigenId int [note: 'Si fue reprogramada']
+  creadaPorId int
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+  updatedAt datetime [default: `CURRENT_TIMESTAMP`]
+  deletedAt datetime
+
+  indexes {
+    (doctorId, fechaHoraInicio)
+    (sedeId, fechaHoraInicio)
+    pacienteId
+  }
+}
+
+Table Citas_Tratamientos {
+  idCitaTratamiento int [pk, increment]
+  citaId int [not null]
+  tratamientoId int [not null]
+  planDetalleId int [note: 'Item del plan que se ejecuta']
+  piezaId int
+  superficie superficie_dental
+  cantidad int [not null, default: 1]
+  precioAplicado decimal(10,2) [not null, note: 'Precio real cobrado']
+  descuento decimal(10,2) [not null, default: 0]
+}
+
+// ================= PAGOS =================
+Table Pagos {
+  idPago int [pk, increment]
+  montoPago decimal(10,2) [not null]
+  metodoPago metodo_pago [not null]
+  fechaPago datetime [not null, default: `CURRENT_TIMESTAMP`]
+  referenciaPago varchar(60) [note: 'Nro de operacion Yape/transferencia']
+  observacionPago varchar(200)
+  pacienteId int [not null]
+  planId int [note: 'Abono directo a un presupuesto']
+  registradoPorId int [not null]
+  createdAt datetime [not null, default: `CURRENT_TIMESTAMP`]
+  anuladoAt datetime
+
+  indexes {
+    pacienteId
+    planId
+  }
+}
+
+Table Pagos_Citas {
+  pagoId int [not null]
+  citaId int [not null]
+  montoAplicado decimal(10,2) [not null]
+
+  indexes {
+    (pagoId, citaId) [pk]
+  }
+}
+
+Table Comprobantes {
+  idComprobante int [pk, increment]
+  tipoComprobante tipo_comprobante [not null]
+  serie varchar(10) [not null]
+  numero varchar(15) [not null]
+  fechaEmision datetime [not null]
+  montoTotal decimal(10,2) [not null]
+  estadoComprobante estado_comprobante [not null, default: 'Emitido']
+  pagoId int [not null]
+
+  indexes {
+    (tipoComprobante, serie, numero) [unique]
+  }
+}
+
+// ================= RELACIONES =================
+Ref: Usuarios.rolId > Roles.idRol
+Ref: Roles_Permisos.rolId > Roles.idRol
+Ref: Roles_Permisos.permisoId > Permisos.idPermiso
+
+Ref: Consultorios.sedeId > Sedes.idSede
+
+Ref: Doctores.usuarioId - Usuarios.idUsuario
+Ref: Empleados.usuarioId - Usuarios.idUsuario
+Ref: Doctores_Especialidades.doctorId > Doctores.idDoctor
+Ref: Doctores_Especialidades.especialidadId > Especialidades.idEspecialidad
+
+Ref: Horarios_Atencion.doctorId > Doctores.idDoctor
+Ref: Horarios_Atencion.sedeId > Sedes.idSede
+Ref: Bloqueos_Agenda.doctorId > Doctores.idDoctor
+Ref: Bloqueos_Agenda.sedeId > Sedes.idSede
+Ref: Bloqueos_Agenda.creadoPorId > Usuarios.idUsuario
+
+Ref: Pacientes.apoderadoId > Pacientes.idPaciente
+Ref: Antecedentes_Paciente.pacienteId > Pacientes.idPaciente
+Ref: Antecedentes_Paciente.registradoPorId > Usuarios.idUsuario
+Ref: Odontograma_Registros.pacienteId > Pacientes.idPaciente
+Ref: Odontograma_Registros.piezaId > Piezas_Dentales.idPieza
+Ref: Odontograma_Registros.citaId > Citas.idCita
+Ref: Odontograma_Registros.registradoPorId > Usuarios.idUsuario
+
+Ref: Planes_Tratamiento.pacienteId > Pacientes.idPaciente
+Ref: Planes_Tratamiento.doctorId > Doctores.idDoctor
+Ref: Planes_Tratamiento_Detalle.planId > Planes_Tratamiento.idPlan
+Ref: Planes_Tratamiento_Detalle.tratamientoId > Tratamientos.idTratamiento
+Ref: Planes_Tratamiento_Detalle.piezaId > Piezas_Dentales.idPieza
+
+Ref: Citas.pacienteId > Pacientes.idPaciente
+Ref: Citas.doctorId > Doctores.idDoctor
+Ref: Citas.sedeId > Sedes.idSede
+Ref: Citas.consultorioId > Consultorios.idConsultorio
+Ref: Citas.planId > Planes_Tratamiento.idPlan
+Ref: Citas.citaOrigenId > Citas.idCita
+Ref: Citas.creadaPorId > Usuarios.idUsuario
+
+Ref: Citas_Tratamientos.citaId > Citas.idCita
+Ref: Citas_Tratamientos.tratamientoId > Tratamientos.idTratamiento
+Ref: Citas_Tratamientos.planDetalleId > Planes_Tratamiento_Detalle.idPlanDetalle
+Ref: Citas_Tratamientos.piezaId > Piezas_Dentales.idPieza
+
+Ref: Pagos.pacienteId > Pacientes.idPaciente
+Ref: Pagos.planId > Planes_Tratamiento.idPlan
+Ref: Pagos.registradoPorId > Usuarios.idUsuario
+Ref: Pagos_Citas.pagoId > Pagos.idPago
+Ref: Pagos_Citas.citaId > Citas.idCita
+Ref: Comprobantes.pagoId > Pagos.idPago

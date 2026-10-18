@@ -1,0 +1,265 @@
+<div class="row">
+  <div class="col-12">
+    <app-card [showHeader]="false" blockClass="p-4">
+      
+      <!-- Fila superior: Input de Búsqueda y Botón Nueva Especialidad -->
+      <div class="row align-items-center mb-4 g-3">
+        <div class="col-12 col-md-7 col-lg-8">
+          <div class="search-box position-relative">
+            <i class="search-icon" antIcon type="search" theme="outline"></i>
+            <input
+              type="text"
+              class="form-control ps-5 py-2 search-input"
+              placeholder="Buscar especialidad por nombre o descripción..."
+              [(ngModel)]="terminoBusqueda"
+              (keyup.enter)="onBuscar()"
+              (input)="onBuscar()"
+            />
+            @if (terminoBusqueda) {
+              <button 
+                type="button" 
+                class="btn-clear position-absolute" 
+                (click)="limpiarBusqueda()"
+                title="Limpiar búsqueda">
+                <i antIcon type="close-circle" theme="outline"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="col-12 col-md-5 col-lg-4 text-md-end">
+          <button 
+            type="button" 
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 btn-nueva-especialidad shadow-sm"
+            (click)="abrirModalCrear()">
+            <i antIcon type="plus" theme="outline"></i>
+            <span>Nueva especialidad</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado de Carga -->
+      @if (cargando) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="text-muted mt-2 mb-0 small">Cargando especialidades...</p>
+        </div>
+      } @else {
+        <!-- Tabla de Especialidades -->
+        <div class="table-responsive rounded-3 border">
+          <table class="table table-hover align-middle mb-0 custom-table">
+            <thead class="table-light text-secondary text-uppercase fs-7">
+              <tr>
+                <th scope="col" class="text-center py-3" style="width: 70px;">#</th>
+                <th scope="col" class="py-3" style="min-width: 200px;">Especialidad</th>
+                <th scope="col" class="py-3">Descripción</th>
+                <th scope="col" class="text-center py-3" style="width: 160px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of especialidadesPaginadas; track item.idEspecialidad; let idx = $index) {
+                <tr class="table-row">
+                  <!-- Columna: # -->
+                  <td class="text-center fw-medium text-muted">
+                    {{ (paginaActual - 1) * tamanioPagina + idx + 1 }}
+                  </td>
+
+                  <!-- Columna: Especialidad -->
+                  <td>
+                    <span class="fw-semibold text-dark fs-6">{{ item.nombreEspecialidad }}</span>
+                  </td>
+
+                  <!-- Columna: Descripción -->
+                  <td>
+                    @if (item.descripcionEspecialidad) {
+                      <span class="text-muted">{{ item.descripcionEspecialidad }}</span>
+                    } @else {
+                      <span class="text-muted fst-italic small">Sin descripción</span>
+                    }
+                  </td>
+
+                  <!-- Columna: Acciones (Editar, Eliminar) -->
+                  <td class="text-center">
+                    <div class="btn-group gap-1" role="group">
+                      <button 
+                        type="button" 
+                        class="btn btn-action btn-edit" 
+                        (click)="abrirModalEditar(item)"
+                        title="Editar especialidad">
+                        <i antIcon type="edit" theme="outline"></i>
+                        <span class="d-none d-sm-inline ms-1">Editar</span>
+                      </button>
+
+                      <button 
+                        type="button" 
+                        class="btn btn-action btn-delete" 
+                        (click)="confirmarEliminar(item)"
+                        title="Eliminar especialidad">
+                        <i antIcon type="delete" theme="outline"></i>
+                        <span class="d-none d-sm-inline ms-1">Eliminar</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="text-center py-5">
+                    <div class="empty-state">
+                      <div class="empty-icon text-muted mb-2">
+                        <i antIcon type="inbox" theme="outline" style="font-size: 2.5rem;"></i>
+                      </div>
+                      <h6 class="text-secondary mb-1">No se encontraron especialidades</h6>
+                      <p class="text-muted small mb-3">
+                        @if (terminoBusqueda) {
+                          No hay resultados para la búsqueda "{{ terminoBusqueda }}".
+                        } @else {
+                          Aún no hay especialidades registradas en el sistema.
+                        }
+                      </p>
+                      @if (terminoBusqueda) {
+                        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limpiarBusqueda()">
+                          Limpiar búsqueda
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Footer Informativo y Paginación -->
+        @if (totalRegistros > 0) {
+          <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-2 border-top">
+            
+            <!-- Selector de tamaño de página e información de registros -->
+            <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 text-muted small">
+              <div class="d-flex align-items-center gap-2">
+                <span>Mostrar</span>
+                <select
+                  class="form-select form-select-sm select-page-size"
+                  [ngModel]="tamanioPagina"
+                  (ngModelChange)="cambiarTamanioPagina($event)">
+                  @for (tam of tamaniosPagina; track tam) {
+                    <option [value]="tam">{{ tam }}</option>
+                  }
+                </select>
+                <span>por pág.</span>
+              </div>
+              <span class="text-secondary">
+                Mostrando <strong>{{ indiceInicio }}</strong> a <strong>{{ indiceFin }}</strong> de <strong>{{ totalRegistros }}</strong> registros
+              </span>
+            </div>
+
+            <!-- Botones de Navegación de Páginas -->
+            @if (totalPaginas > 1) {
+              <nav aria-label="Navegación de páginas">
+                <ul class="pagination pagination-sm mb-0 custom-pagination justify-content-center">
+                  <!-- Botón Primera Página -->
+                  <li class="page-item" [class.disabled]="paginaActual === 1">
+                    <button
+                      class="page-link"
+                      type="button"
+                      (click)="cambiarPagina(1)"
+                      [disabled]="paginaActual === 1"
+                      title="Primera página"
+                      aria-label="Primera">
+                      &laquo;
+                    </button>
+                  </li>
+
+                  <!-- Botón Página Anterior -->
+                  <li class="page-item" [class.disabled]="paginaActual === 1">
+                    <button
+                      class="page-link"
+                      type="button"
+                      (click)="cambiarPagina(paginaActual - 1)"
+                      [disabled]="paginaActual === 1"
+                      title="Página anterior"
+                      aria-label="Anterior">
+                      &lsaquo;
+                    </button>
+                  </li>
+
+                  <!-- Página 1 si el rango visible no la incluye -->
+                  @if (paginasVisibles.length > 0 && paginasVisibles[0] > 1) {
+                    <li class="page-item">
+                      <button class="page-link" type="button" (click)="cambiarPagina(1)">1</button>
+                    </li>
+                    @if (paginasVisibles[0] > 2) {
+                      <li class="page-item disabled">
+                        <span class="page-link">&hellip;</span>
+                      </li>
+                    }
+                  }
+
+                  <!-- Páginas visibles -->
+                  @for (p of paginasVisibles; track p) {
+                    <li class="page-item" [class.active]="p === paginaActual">
+                      <button
+                        class="page-link"
+                        type="button"
+                        (click)="cambiarPagina(p)">
+                        {{ p }}
+                      </button>
+                    </li>
+                  }
+
+                  <!-- Última página si el rango visible no la incluye -->
+                  @if (paginasVisibles.length > 0 && paginasVisibles[paginasVisibles.length - 1] < totalPaginas) {
+                    @if (paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1) {
+                      <li class="page-item disabled">
+                        <span class="page-link">&hellip;</span>
+                      </li>
+                    }
+                    <li class="page-item">
+                      <button class="page-link" type="button" (click)="cambiarPagina(totalPaginas)">{{ totalPaginas }}</button>
+                    </li>
+                  }
+
+                  <!-- Botón Página Siguiente -->
+                  <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                    <button
+                      class="page-link"
+                      type="button"
+                      (click)="cambiarPagina(paginaActual + 1)"
+                      [disabled]="paginaActual === totalPaginas"
+                      title="Página siguiente"
+                      aria-label="Siguiente">
+                      &rsaquo;
+                    </button>
+                  </li>
+
+                  <!-- Botón Última Página -->
+                  <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                    <button
+                      class="page-link"
+                      type="button"
+                      (click)="cambiarPagina(totalPaginas)"
+                      [disabled]="paginaActual === totalPaginas"
+                      title="Última página"
+                      aria-label="Última">
+                      &raquo;
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            }
+          </div>
+        }
+      }
+
+    </app-card>
+  </div>
+</div>
+
+<!-- Subcomponente Modal para Crear / Editar Especialidad -->
+<app-modal-especialidad
+  [visible]="modalAbierto"
+  [especialidad]="especialidadSeleccionada"
+  (guardado)="onEspecialidadGuardada()"
+  (cerrado)="cerrarModal()">
+</app-modal-especialidad>

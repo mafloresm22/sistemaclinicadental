@@ -1,0 +1,83 @@
+@if (visible) {
+<div class="custom-modal-backdrop" (click)="cerrar()"></div>
+<div class="custom-modal-dialog">
+    <div class="custom-modal-content shadow-lg border-0 rounded-4">
+
+        <!-- Modal Header -->
+        <div class="modal-header border-bottom px-4 py-3 align-items-center justify-content-between">
+            <h5 class="modal-title fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                <i antIcon [type]="modoEdicion ? 'edit' : 'plus-circle'" theme="outline" class="text-primary"></i>
+                <span>{{ modoEdicion ? 'Editar Especialidad' : 'Nueva Especialidad' }}</span>
+            </h5>
+            <button type="button" class="btn-close" aria-label="Close" (click)="cerrar()"></button>
+        </div>
+
+        <!-- Modal Body (Formulario) -->
+        <form [formGroup]="formEspecialidad" (ngSubmit)="guardar()">
+            <div class="modal-body px-4 py-4">
+
+                <!-- Nombre de Especialidad -->
+                <div class="mb-3">
+                    <label for="nombreEspecialidad" class="form-label fw-semibold text-secondary small">
+                        Nombre de la Especialidad <span class="text-danger">*</span>
+                    </label>
+                    <input id="nombreEspecialidad" type="text" class="form-control"
+                        placeholder="Ej. Ortodoncia, Endodoncia..." formControlName="nombreEspecialidad"
+                        [class.is-invalid]="formEspecialidad.get('nombreEspecialidad')?.invalid && formEspecialidad.get('nombreEspecialidad')?.touched" />
+                    @if (formEspecialidad.get('nombreEspecialidad')?.invalid &&
+                    formEspecialidad.get('nombreEspecialidad')?.touched) {
+                    <div class="invalid-feedback">
+                        @if (formEspecialidad.get('nombreEspecialidad')?.errors?.['required']) {
+                        El nombre de la especialidad es obligatorio.
+                        }
+                        @if (formEspecialidad.get('nombreEspecialidad')?.errors?.['maxlength']) {
+                        No puede superar los 100 caracteres.
+                        }
+                    </div>
+                    }
+                </div>
+
+                <!-- Descripción de Especialidad -->
+                <div class="mb-2">
+                    <label for="descripcionEspecialidad" class="form-label fw-semibold text-secondary small">
+                        Descripción <span class="text-muted fw-normal">(Opcional)</span>
+                    </label>
+                    <textarea id="descripcionEspecialidad" rows="3" class="form-control"
+                        placeholder="Breve descripción del área de atención o tratamientos..."
+                        formControlName="descripcionEspecialidad"
+                        [class.is-invalid]="formEspecialidad.get('descripcionEspecialidad')?.invalid && formEspecialidad.get('descripcionEspecialidad')?.touched"></textarea>
+                    @if (formEspecialidad.get('descripcionEspecialidad')?.invalid &&
+                    formEspecialidad.get('descripcionEspecialidad')?.touched) {
+                    <div class="invalid-feedback">
+                        La descripción no puede superar los 200 caracteres.
+                    </div>
+                    }
+                    <div class="text-end text-muted small mt-1">
+                        {{ formEspecialidad.get('descripcionEspecialidad')?.value?.length || 0 }}/200
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer border-top px-4 py-3 bg-light rounded-bottom-4 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-danger px-3" (click)="cerrar()" [disabled]="guardando">
+                    Cancelar
+                </button>
+
+                <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                    [disabled]="guardando || formEspecialidad.invalid">
+                    @if (guardando) {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Guardando...</span>
+                    } @else {
+                    <i antIcon type="check" theme="outline"></i>
+                    <span>{{ modoEdicion ? 'Actualizar' : 'Guardar' }}</span>
+                    }
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+}
