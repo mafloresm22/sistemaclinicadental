@@ -57,6 +57,7 @@ const options = {
       { name: 'Autenticación', description: 'Inicio de sesión, perfil y cierre de sesión' },
       { name: 'Sistema', description: 'Estado del servidor y base de datos' },
       { name: 'Especialidades', description: 'Gestión de especialidades odontológicas/médicas' },
+      { name: 'Infraestructura', description: 'Gestión de Sedes y Consultorios de la clínica' },
       { name: 'Pacientes', description: 'Gestión de pacientes' },
       { name: 'Médicos', description: 'Gestión de médicos' },
       { name: 'Citas', description: 'Gestión de citas médicas' },

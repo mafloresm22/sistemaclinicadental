@@ -15,12 +15,17 @@ const routes: Routes = [
     children: [
       {
         path: '',
-        redirectTo: '/dashboard/default',
+        redirectTo: '/dashboard/inicio',
         pathMatch: 'full'
       },
       {
-        path: 'dashboard/default',
+        path: 'dashboard/inicio',
         loadComponent: () => import('./demo/dashboard/default/default.component').then((c) => c.DefaultComponent)
+      },
+      {
+        path: 'dashboard/default',
+        redirectTo: '/dashboard/inicio',
+        pathMatch: 'full'
       },
       {
         path: 'typography',
@@ -33,6 +38,10 @@ const routes: Routes = [
       {
         path: 'especialidades',
         loadComponent: () => import('./layouts/especialidades/especialidades.component').then((c) => c.EspecialidadesComponent)
+      },
+      {
+        path: 'infraestructura',
+        loadComponent: () => import('./layouts/infraestructura/infraestructura.component').then((c) => c.InfraestructuraComponent)
       }
     ]
   },

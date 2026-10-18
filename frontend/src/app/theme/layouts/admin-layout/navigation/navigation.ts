@@ -49,6 +49,14 @@ export const NavigationItems: NavigationItem[] = [
         classes: 'nav-item',
         url: '/especialidades',
         icon: 'heart'
+      },
+      {
+        id: 'infraestructura',
+        title: 'Infraestructura',
+        type: 'item',
+        classes: 'nav-item',
+        url: '/infraestructura',
+        icon: 'home'
       }
     ]
   }

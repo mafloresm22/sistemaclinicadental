@@ -87,7 +87,7 @@ export class AuthLoginComponent {
             timer: 1600,
             timerProgressBar: true
           }).then(() => {
-            this.router.navigate(['/dashboard/default']);
+            this.router.navigate(['/dashboard/inicio']);
           });
         }
       },

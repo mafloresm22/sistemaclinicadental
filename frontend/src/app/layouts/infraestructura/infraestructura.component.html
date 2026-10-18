@@ -1,0 +1,581 @@
+<div class="row">
+  <div class="col-12">
+    <app-card [showHeader]="false" blockClass="p-4">
+
+      <!-- Header del Módulo con Tabs Unificadas -->
+      <div
+        class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
+        <div>
+          <h4 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+            <i antIcon type="apartment" theme="outline" class="text-primary"></i>
+            <span>Infraestructura Clínica</span>
+          </h4>
+          <p class="text-muted small mb-0">
+            Administración unificada de sedes físicas y consultorios odontológicos de la clínica
+          </p>
+        </div>
+
+        <!-- Selector de Pestañas (Tabs) -->
+        <div class="nav-tabs-container p-1 rounded-3 bg-light d-inline-flex border">
+          <button type="button" class="tab-btn btn d-inline-flex align-items-center gap-2 px-3 py-2 rounded-2"
+            [class.active]="tabActiva === 'sedes'" (click)="seleccionarTab('sedes')">
+            <i antIcon type="bank" theme="outline"></i>
+            <span class="fw-medium">Sedes</span>
+            <span class="badge rounded-pill" [class.bg-primary]="tabActiva === 'sedes'"
+              [class.bg-secondary]="tabActiva !== 'sedes'">
+              {{ totalSedes }}
+            </span>
+          </button>
+
+          <button type="button" class="tab-btn btn d-inline-flex align-items-center gap-2 px-3 py-2 rounded-2"
+            [class.active]="tabActiva === 'consultorios'" (click)="seleccionarTab('consultorios')">
+            <i antIcon type="apartment" theme="outline"></i>
+            <span class="fw-medium">Consultorios</span>
+            <span class="badge rounded-pill" [class.bg-primary]="tabActiva === 'consultorios'"
+              [class.bg-secondary]="tabActiva !== 'consultorios'">
+              {{ totalConsultorios }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Banner Informativo: Recuerda que primero debe haber una sede -->
+      @if (totalSedes === 0 && !cargandoSedes) {
+      <div
+        class="alert alert-warning border-0 rounded-3 shadow-sm d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 p-3 mb-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="alert-icon-circle bg-warning text-dark flex-shrink-0">
+            <i antIcon type="info-circle" theme="outline" style="font-size: 1.3rem;"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold text-dark mb-0">Comienza registrando tu primera sede</h6>
+            <p class="text-muted small mb-0">
+              Los consultorios odontológicos pertenecen a una sede física. Primero debes crear una sede para poder
+              asignar consultorios.
+            </p>
+          </div>
+        </div>
+        <button type="button"
+          class="btn btn-primary btn-sm px-3 py-2 d-inline-flex align-items-center gap-2 flex-shrink-0 shadow-sm"
+          (click)="abrirModalCrearSede()">
+          <i antIcon type="plus" theme="outline"></i>
+          <span>Registrar Primera Sede</span>
+        </button>
+      </div>
+      }
+
+      <!-- CONTENIDO PESTAÑA 1: SEDES -->
+
+      @if (tabActiva === 'sedes') {
+
+      <!-- Fila de Filtros y Botón Nueva Sede -->
+      <div class="row align-items-center mb-4 g-3">
+        <div class="col-12 col-md-5 col-lg-6">
+          <div class="search-box position-relative">
+            <i class="search-icon" antIcon type="search" theme="outline"></i>
+            <input type="text" class="form-control ps-5 py-2 search-input"
+              placeholder="Buscar sede por nombre, dirección o teléfono..." [(ngModel)]="busquedaSede"
+              (keyup.enter)="onBuscarSedes()" (input)="onBuscarSedes()" />
+            @if (busquedaSede) {
+            <button type="button" class="btn-clear position-absolute" (click)="limpiarBusquedaSedes()"
+              title="Limpiar búsqueda">
+              <i antIcon type="close-circle" theme="outline"></i>
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Filtro por Estado -->
+        <div class="col-12 col-sm-6 col-md-3 col-lg-2">
+          <select class="form-select py-2 filter-select" [(ngModel)]="filtroEstadoSede" (change)="onBuscarSedes()">
+            <option value="Todos">Todos los estados</option>
+            <option value="Activo">Solo Activas</option>
+            <option value="Inactivo">Solo Inactivas</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-sm-6 col-md-4 col-lg-4 text-sm-end">
+          <button type="button"
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 btn-action-main shadow-sm w-100 w-sm-auto"
+            (click)="abrirModalCrearSede()">
+            <i antIcon type="plus" theme="outline"></i>
+            <span>Nueva Sede</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado de Carga -->
+      @if (cargandoSedes) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted mt-2 mb-0 small">Cargando sedes...</p>
+      </div>
+      } @else {
+      <!-- Tabla de Sedes -->
+      <div class="table-responsive rounded-3 border">
+        <table class="table table-hover align-middle mb-0 custom-table">
+          <thead class="table-light text-secondary text-uppercase fs-7">
+            <tr>
+              <th scope="col" class="text-center py-3" style="width: 60px;">#</th>
+              <th scope="col" class="py-3" style="min-width: 220px;">Sede</th>
+              <th scope="col" class="py-3" style="min-width: 220px;">Dirección y Teléfono</th>
+              <th scope="col" class="text-center py-3" style="width: 170px;">Consultorios</th>
+              <th scope="col" class="text-center py-3" style="width: 120px;">Estado</th>
+              <th scope="col" class="text-center py-3" style="width: 170px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of sedesPaginadas; track item.idSede; let idx = $index) {
+            <tr class="table-row">
+              <!-- # -->
+              <td class="text-center fw-medium text-muted">
+                {{ (paginaSedes - 1) * tamanioPaginaSedes + idx + 1 }}
+              </td>
+
+              <!-- Sede -->
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="icon-avatar bg-primary-subtle text-primary rounded-3 p-2">
+                    <i antIcon type="bank" theme="outline"></i>
+                  </div>
+                  <div>
+                    <span class="fw-semibold text-dark fs-6 d-block">{{ item.nombreSede }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Dirección y Teléfono -->
+              <td>
+                <div class="d-flex flex-column gap-1">
+                  @if (item.direccionSede && item.direccionSede !== 'Ninguno') {
+                  <span class="text-dark small d-block text-truncate" style="max-width: 260px;"
+                    title="{{ item.direccionSede }}">
+                    {{ item.direccionSede }}
+                  </span>
+                  } @else {
+                  <span class="text-muted fst-italic small">Dirección: Ninguno</span>
+                  }
+                  @if (item.telefonoSede && item.telefonoSede !== 'Ninguno') {
+                  <span class="text-muted small">
+                    📞 {{ item.telefonoSede }}
+                  </span>
+                  } @else {
+                  <span class="text-muted fst-italic small">Teléfono: Ninguno</span>
+                  }
+                </div>
+              </td>
+
+              <!-- Consultorios Asociados -->
+              <td class="text-center">
+                <div class="d-inline-flex flex-column align-items-center gap-1">
+                  <span class="badge bg-light text-dark border px-2 py-1">
+                    <strong>{{ item.totalConsultorios || 0 }}</strong> consultorio(s)
+                  </span>
+                  <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-primary small"
+                      (click)="verConsultoriosDeSede(item)" title="Ver consultorios de esta sede">
+                      Ver todos
+                    </button>
+                    <span class="text-muted mx-1">·</span>
+                    <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-success small"
+                      (click)="abrirModalCrearConsultorio(item.idSede)" title="Agregar consultorio a esta sede">
+                      + Agregar
+                    </button>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Estado -->
+              <td class="text-center">
+                <button type="button" class="btn badge-btn" [class.badge-active]="item.estadoSede === 'Activo'"
+                  [class.badge-inactive]="item.estadoSede === 'Inactivo'" (click)="cambiarEstadoSede(item)"
+                  title="Clic para cambiar estado">
+                  {{ item.estadoSede }}
+                </button>
+              </td>
+
+              <!-- Acciones -->
+              <td class="text-center">
+                <div class="btn-group gap-1" role="group">
+                  <button type="button" class="btn btn-action btn-edit" (click)="abrirModalEditarSede(item)"
+                    title="Editar sede">
+                    <i antIcon type="edit" theme="outline"></i>
+                    <span class="d-none d-sm-inline ms-1">Editar</span>
+                  </button>
+
+                  <button type="button" class="btn btn-action btn-delete" (click)="confirmarEliminarSede(item)"
+                    title="Eliminar sede">
+                    <i antIcon type="delete" theme="outline"></i>
+                    <span class="d-none d-sm-inline ms-1">Eliminar</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="6" class="text-center py-5">
+                <div class="empty-state">
+                  <div class="empty-icon text-muted mb-2">
+                    <i antIcon type="inbox" theme="outline" style="font-size: 2.5rem;"></i>
+                  </div>
+                  <h6 class="text-secondary mb-1">No se encontraron sedes</h6>
+                  <p class="text-muted small mb-3">
+                    @if (busquedaSede || filtroEstadoSede !== 'Todos') {
+                    No hay resultados con los filtros aplicados.
+                    } @else {
+                    Aún no hay sedes registradas en el sistema.
+                    }
+                  </p>
+                  @if (busquedaSede || filtroEstadoSede !== 'Todos') {
+                  <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limpiarBusquedaSedes()">
+                    Limpiar filtros
+                  </button>
+                  } @else {
+                  <button type="button" class="btn btn-primary btn-sm" (click)="abrirModalCrearSede()">
+                    Registrar primera sede
+                  </button>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Sedes -->
+      @if (totalSedes > 0) {
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-2 border-top">
+        <div
+          class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 text-muted small">
+          <div class="d-flex align-items-center gap-2">
+            <span>Mostrar</span>
+            <select class="form-select form-select-sm select-page-size" [ngModel]="tamanioPaginaSedes"
+              (ngModelChange)="cambiarTamanioPaginaSedes($event)">
+              @for (tam of tamaniosPagina; track tam) {
+              <option [value]="tam">{{ tam }}</option>
+              }
+            </select>
+            <span>por pág.</span>
+          </div>
+          <span class="text-secondary">
+            Mostrando <strong>{{ indiceInicioSedes }}</strong> a <strong>{{ indiceFinSedes }}</strong> de <strong>{{
+              totalSedes }}</strong> sedes
+          </span>
+        </div>
+
+        @if (totalPaginasSedes > 1) {
+        <nav aria-label="Navegación de sedes">
+          <ul class="pagination pagination-sm mb-0 custom-pagination justify-content-center">
+            <li class="page-item" [class.disabled]="paginaSedes === 1">
+              <button class="page-link" type="button" (click)="cambiarPaginaSedes(1)"
+                [disabled]="paginaSedes === 1">&laquo;</button>
+            </li>
+            <li class="page-item" [class.disabled]="paginaSedes === 1">
+              <button class="page-link" type="button" (click)="cambiarPaginaSedes(paginaSedes - 1)"
+                [disabled]="paginaSedes === 1">&lsaquo;</button>
+            </li>
+
+            @if (paginasVisiblesSedes.length > 0 && paginasVisiblesSedes[0] > 1) {
+            <li class="page-item">
+              <button class="page-link" type="button" (click)="cambiarPaginaSedes(1)">1</button>
+            </li>
+            @if (paginasVisiblesSedes[0] > 2) {
+            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            }
+            }
+
+            @for (p of paginasVisiblesSedes; track p) {
+            <li class="page-item" [class.active]="p === paginaSedes">
+              <button class="page-link" type="button" (click)="cambiarPaginaSedes(p)">{{ p }}</button>
+            </li>
+            }
+
+            @if (paginasVisiblesSedes.length > 0 && paginasVisiblesSedes[paginasVisiblesSedes.length - 1] <
+              totalPaginasSedes) { @if (paginasVisiblesSedes[paginasVisiblesSedes.length - 1] < totalPaginasSedes - 1) {
+              <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+              }
+              <li class="page-item">
+                <button class="page-link" type="button" (click)="cambiarPaginaSedes(totalPaginasSedes)">{{
+                  totalPaginasSedes }}</button>
+              </li>
+              }
+
+              <li class="page-item" [class.disabled]="paginaSedes === totalPaginasSedes">
+                <button class="page-link" type="button" (click)="cambiarPaginaSedes(paginaSedes + 1)"
+                  [disabled]="paginaSedes === totalPaginasSedes">&rsaquo;</button>
+              </li>
+              <li class="page-item" [class.disabled]="paginaSedes === totalPaginasSedes">
+                <button class="page-link" type="button" (click)="cambiarPaginaSedes(totalPaginasSedes)"
+                  [disabled]="paginaSedes === totalPaginasSedes">&raquo;</button>
+              </li>
+          </ul>
+        </nav>
+        }
+      </div>
+      }
+      }
+      }
+
+      <!-- CONTENIDO PESTAÑA 2: CONSULTORIOS -->
+
+      @if (tabActiva === 'consultorios') {
+
+      <!-- Fila de Filtros y Botón Nuevo Consultorio -->
+      <div class="row align-items-center mb-4 g-3">
+        <!-- Búsqueda -->
+        <div class="col-12 col-md-4 col-lg-4">
+          <div class="search-box position-relative">
+            <i class="search-icon" antIcon type="search" theme="outline"></i>
+            <input type="text" class="form-control ps-5 py-2 search-input"
+              placeholder="Buscar consultorio por nombre o número..." [(ngModel)]="busquedaConsultorio"
+              (keyup.enter)="onBuscarConsultorios()" (input)="onBuscarConsultorios()" />
+            @if (busquedaConsultorio) {
+            <button type="button" class="btn-clear position-absolute" (click)="limpiarBusquedaConsultorios()"
+              title="Limpiar búsqueda">
+              <i antIcon type="close-circle" theme="outline"></i>
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Filtro por Sede -->
+        <div class="col-12 col-sm-6 col-md-3 col-lg-3">
+          <select class="form-select py-2 filter-select" [(ngModel)]="filtroSedeConsultorios"
+            (change)="onBuscarConsultorios()">
+            <option [value]="0">Todas las sedes</option>
+            @for (s of sedes; track s.idSede) {
+            <option [value]="s.idSede">Sede: {{ s.nombreSede }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Filtro por Estado -->
+        <div class="col-12 col-sm-6 col-md-2 col-lg-2">
+          <select class="form-select py-2 filter-select" [(ngModel)]="filtroEstadoConsultorio"
+            (change)="onBuscarConsultorios()">
+            <option value="Todos">Todos</option>
+            <option value="Activo">Solo Activos</option>
+            <option value="Inactivo">Solo Inactivos</option>
+          </select>
+        </div>
+
+        <!-- Botón Nuevo Consultorio -->
+        <div class="col-12 col-md-3 col-lg-3 text-md-end">
+          <button type="button"
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 btn-action-main shadow-sm w-100 w-md-auto"
+            (click)="abrirModalCrearConsultorio(filtroSedeConsultorios || undefined)"
+            [title]="sedes.length === 0 ? 'Registra una sede primero' : 'Crear nuevo consultorio'">
+            <i antIcon type="plus" theme="outline"></i>
+            <span>Nuevo Consultorio</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado de Carga -->
+      @if (cargandoConsultorios) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted mt-2 mb-0 small">Cargando consultorios...</p>
+      </div>
+      } @else {
+      <!-- Tabla de Consultorios -->
+      <div class="table-responsive rounded-3 border">
+        <table class="table table-hover align-middle mb-0 custom-table">
+          <thead class="table-light text-secondary text-uppercase fs-7">
+            <tr>
+              <th scope="col" class="text-center py-3" style="width: 60px;">#</th>
+              <th scope="col" class="py-3" style="min-width: 220px;">Consultorio</th>
+              <th scope="col" class="py-3" style="min-width: 200px;">Sede Asignada</th>
+              <th scope="col" class="text-center py-3" style="width: 140px;">Estado</th>
+              <th scope="col" class="text-center py-3" style="width: 160px;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (item of consultoriosPaginados; track item.idConsultorio; let idx = $index) {
+            <tr class="table-row">
+              <!-- # -->
+              <td class="text-center fw-medium text-muted">
+                {{ (paginaConsultorios - 1) * tamanioPaginaConsultorios + idx + 1 }}
+              </td>
+
+              <!-- Consultorio -->
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="icon-avatar bg-info-subtle text-info rounded-3 p-2">
+                    <i antIcon type="apartment" theme="outline"></i>
+                  </div>
+                  <div>
+                    <span class="fw-semibold text-dark fs-6 d-block">{{ item.nombreConsultorio }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Sede Asignada -->
+              <td>
+                <div class="d-inline-flex align-items-center gap-2">
+                  <i antIcon type="bank" theme="outline" class="text-muted"></i>
+                  <span class="text-dark fw-medium small">{{ item.nombreSede }}</span>
+                </div>
+              </td>
+
+              <!-- Estado -->
+              <td class="text-center">
+                <button type="button" class="btn badge-btn" [class.badge-active]="item.estadoConsultorio === 'Activo'"
+                  [class.badge-inactive]="item.estadoConsultorio === 'Inactivo'"
+                  (click)="cambiarEstadoConsultorio(item)" title="Clic para cambiar estado">
+                  {{ item.estadoConsultorio }}
+                </button>
+              </td>
+
+              <!-- Acciones -->
+              <td class="text-center">
+                <div class="btn-group gap-1" role="group">
+                  <button type="button" class="btn btn-action btn-edit" (click)="abrirModalEditarConsultorio(item)"
+                    title="Editar consultorio">
+                    <i antIcon type="edit" theme="outline"></i>
+                    <span class="d-none d-sm-inline ms-1">Editar</span>
+                  </button>
+
+                  <button type="button" class="btn btn-action btn-delete" (click)="confirmarEliminarConsultorio(item)"
+                    title="Eliminar consultorio">
+                    <i antIcon type="delete" theme="outline"></i>
+                    <span class="d-none d-sm-inline ms-1">Eliminar</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            } @empty {
+            <tr>
+              <td colspan="5" class="text-center py-5">
+                <div class="empty-state">
+                  <div class="empty-icon text-muted mb-2">
+                    <i antIcon type="inbox" theme="outline" style="font-size: 2.5rem;"></i>
+                  </div>
+                  <h6 class="text-secondary mb-1">No se encontraron consultorios</h6>
+                  <p class="text-muted small mb-3">
+                    @if (sedes.length === 0) {
+                    Para registrar consultorios primero debes crear al menos una sede.
+                    } @else if (busquedaConsultorio || filtroSedeConsultorios !== 0 || filtroEstadoConsultorio !==
+                    'Todos') {
+                    No hay resultados para los filtros seleccionados.
+                    } @else {
+                    Aún no hay consultorios registrados en el sistema.
+                    }
+                  </p>
+                  @if (sedes.length === 0) {
+                  <button type="button" class="btn btn-primary btn-sm" (click)="abrirModalCrearSede()">
+                    Crear primera sede
+                  </button>
+                  } @else if (busquedaConsultorio || filtroSedeConsultorios !== 0 || filtroEstadoConsultorio !==
+                  'Todos') {
+                  <button type="button" class="btn btn-outline-secondary btn-sm"
+                    (click)="limpiarBusquedaConsultorios()">
+                    Limpiar filtros
+                  </button>
+                  } @else {
+                  <button type="button" class="btn btn-primary btn-sm" (click)="abrirModalCrearConsultorio()">
+                    Registrar primer consultorio
+                  </button>
+                  }
+                </div>
+              </td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación Consultorios -->
+      @if (totalConsultorios > 0) {
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-2 border-top">
+        <div
+          class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 text-muted small">
+          <div class="d-flex align-items-center gap-2">
+            <span>Mostrar</span>
+            <select class="form-select form-select-sm select-page-size" [ngModel]="tamanioPaginaConsultorios"
+              (ngModelChange)="cambiarTamanioPaginaConsultorios($event)">
+              @for (tam of tamaniosPagina; track tam) {
+              <option [value]="tam">{{ tam }}</option>
+              }
+            </select>
+            <span>por pág.</span>
+          </div>
+          <span class="text-secondary">
+            Mostrando <strong>{{ indiceInicioConsultorios }}</strong> a <strong>{{ indiceFinConsultorios }}</strong> de
+            <strong>{{ totalConsultorios }}</strong> consultorios
+          </span>
+        </div>
+
+        @if (totalPaginasConsultorios > 1) {
+        <nav aria-label="Navegación de consultorios">
+          <ul class="pagination pagination-sm mb-0 custom-pagination justify-content-center">
+            <li class="page-item" [class.disabled]="paginaConsultorios === 1">
+              <button class="page-link" type="button" (click)="cambiarPaginaConsultorios(1)"
+                [disabled]="paginaConsultorios === 1">&laquo;</button>
+            </li>
+            <li class="page-item" [class.disabled]="paginaConsultorios === 1">
+              <button class="page-link" type="button" (click)="cambiarPaginaConsultorios(paginaConsultorios - 1)"
+                [disabled]="paginaConsultorios === 1">&lsaquo;</button>
+            </li>
+
+            @if (paginasVisiblesConsultorios.length > 0 && paginasVisiblesConsultorios[0] > 1) {
+            <li class="page-item">
+              <button class="page-link" type="button" (click)="cambiarPaginaConsultorios(1)">1</button>
+            </li>
+            @if (paginasVisiblesConsultorios[0] > 2) {
+            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            }
+            }
+
+            @for (p of paginasVisiblesConsultorios; track p) {
+            <li class="page-item" [class.active]="p === paginaConsultorios">
+              <button class="page-link" type="button" (click)="cambiarPaginaConsultorios(p)">{{ p }}</button>
+            </li>
+            }
+
+            @if (paginasVisiblesConsultorios.length > 0 &&
+            paginasVisiblesConsultorios[paginasVisiblesConsultorios.length - 1] < totalPaginasConsultorios) { @if
+              (paginasVisiblesConsultorios[paginasVisiblesConsultorios.length - 1] < totalPaginasConsultorios - 1) { <li
+              class="page-item disabled"><span class="page-link">&hellip;</span></li>
+              }
+              <li class="page-item">
+                <button class="page-link" type="button" (click)="cambiarPaginaConsultorios(totalPaginasConsultorios)">{{
+                  totalPaginasConsultorios }}</button>
+              </li>
+              }
+
+              <li class="page-item" [class.disabled]="paginaConsultorios === totalPaginasConsultorios">
+                <button class="page-link" type="button" (click)="cambiarPaginaConsultorios(paginaConsultorios + 1)"
+                  [disabled]="paginaConsultorios === totalPaginasConsultorios">&rsaquo;</button>
+              </li>
+              <li class="page-item" [class.disabled]="paginaConsultorios === totalPaginasConsultorios">
+                <button class="page-link" type="button" (click)="cambiarPaginaConsultorios(totalPaginasConsultorios)"
+                  [disabled]="paginaConsultorios === totalPaginasConsultorios">&raquo;</button>
+              </li>
+          </ul>
+        </nav>
+        }
+      </div>
+      }
+      }
+      }
+
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal para Crear / Editar Sedes -->
+<app-modal-sedes [visible]="modalSedeAbierto" [sede]="sedeSeleccionada" (guardado)="onSedeGuardada()"
+  (cerrado)="cerrarModalSede()">
+</app-modal-sedes>
+
+<!-- Modal para Crear / Editar Consultorios -->
+<app-modal-consultorio [visible]="modalConsultorioAbierto" [consultorio]="consultorioSeleccionado"
+  [sedesDisponibles]="sedesActivas" [sedePreseleccionadaId]="sedePreseleccionadaId" (guardado)="onConsultorioGuardado()"
+  (cerrado)="cerrarModalConsultorio()" (solicitarCrearSede)="abrirModalCrearSede()">
+</app-modal-consultorio>

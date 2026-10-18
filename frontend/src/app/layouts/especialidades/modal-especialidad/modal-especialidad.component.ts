@@ -72,7 +72,7 @@ export class ModalEspecialidadComponent implements OnChanges {
 
     const payload = {
       nombreEspecialidad: this.formEspecialidad.value.nombreEspecialidad.trim(),
-      descripcionEspecialidad: this.formEspecialidad.value.descripcionEspecialidad?.trim() || null
+      descripcionEspecialidad: this.formEspecialidad.value.descripcionEspecialidad?.trim() || 'Ninguno'
     };
 
     this.guardando = true;

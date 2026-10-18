@@ -1,0 +1,92 @@
+@if (visible) {
+<div class="custom-modal-backdrop" (click)="cerrar()"></div>
+<div class="custom-modal-dialog">
+  <div class="custom-modal-content shadow-lg border-0 rounded-4">
+
+    <!-- Modal Header -->
+    <div class="modal-header border-bottom px-4 py-3 align-items-center justify-content-between">
+      <h5 class="modal-title fw-bold text-dark m-0 d-flex align-items-center gap-2">
+        <i antIcon [type]="modoEdicion ? 'edit' : 'plus-circle'" theme="outline" class="text-primary"></i>
+        <span>{{ modoEdicion ? 'Editar Sede' : 'Nueva Sede' }}</span>
+      </h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="cerrar()"></button>
+    </div>
+
+    <!-- Modal Body (Formulario) -->
+    <form [formGroup]="formSede" (ngSubmit)="guardar()">
+      <div class="modal-body px-4 py-4">
+
+        <!-- Nombre de la Sede -->
+        <div class="mb-3">
+          <label for="nombreSede" class="form-label fw-semibold text-secondary small">
+            Nombre de la Sede <span class="text-danger">*</span>
+          </label>
+          <input id="nombreSede" type="text" class="form-control"
+            placeholder="Ej. Sede Central Miraflores, Sede San Isidro..." formControlName="nombreSede"
+            [class.is-invalid]="formSede.get('nombreSede')?.invalid && formSede.get('nombreSede')?.touched" />
+          @if (formSede.get('nombreSede')?.invalid && formSede.get('nombreSede')?.touched) {
+          <div class="invalid-feedback">
+            @if (formSede.get('nombreSede')?.errors?.['required']) {
+            El nombre de la sede es obligatorio.
+            }
+            @if (formSede.get('nombreSede')?.errors?.['maxlength']) {
+            No puede superar los 100 caracteres.
+            }
+          </div>
+          }
+        </div>
+
+        <!-- Dirección de la Sede -->
+        <div class="mb-3">
+          <label for="direccionSede" class="form-label fw-semibold text-secondary small">
+            Dirección <span class="text-muted fw-normal">(Opcional)</span>
+          </label>
+          <input id="direccionSede" type="text" class="form-control" placeholder="Ej. Av. Larco 1234, Miraflores, Lima"
+            formControlName="direccionSede"
+            [class.is-invalid]="formSede.get('direccionSede')?.invalid && formSede.get('direccionSede')?.touched" />
+          @if (formSede.get('direccionSede')?.invalid && formSede.get('direccionSede')?.touched) {
+          <div class="invalid-feedback">
+            La dirección no puede superar los 200 caracteres.
+          </div>
+          }
+        </div>
+
+        <!-- Teléfono de la Sede -->
+        <div class="mb-3">
+          <label for="telefonoSede" class="form-label fw-semibold text-secondary small">
+            Teléfono de Contacto <span class="text-muted fw-normal">(Opcional)</span>
+          </label>
+          <input id="telefonoSede" type="text" class="form-control" placeholder="Ej. +51 987 654 321 / (01) 456-7890"
+            formControlName="telefonoSede"
+            [class.is-invalid]="formSede.get('telefonoSede')?.invalid && formSede.get('telefonoSede')?.touched" />
+          @if (formSede.get('telefonoSede')?.invalid && formSede.get('telefonoSede')?.touched) {
+          <div class="invalid-feedback">
+            El teléfono no puede superar los 20 caracteres.
+          </div>
+          }
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer border-top px-4 py-3 bg-light rounded-bottom-4 d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-danger px-3" (click)="cerrar()" [disabled]="guardando">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-2 shadow-sm"
+          [disabled]="guardando || formSede.invalid">
+          @if (guardando) {
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span>Guardando...</span>
+          } @else {
+          <i antIcon type="check" theme="outline"></i>
+          <span>{{ modoEdicion ? 'Actualizar Sede' : 'Guardar Sede' }}</span>
+          }
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+}

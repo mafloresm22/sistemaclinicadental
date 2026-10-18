@@ -104,7 +104,7 @@ async function crearEspecialidad(req, res, next) {
     }
 
     const nombreLimpio = nombreEspecialidad.trim();
-    const descripcionLimpia = descripcionEspecialidad ? descripcionEspecialidad.trim() : null;
+    const descripcionLimpia = descripcionEspecialidad && descripcionEspecialidad.trim() ? descripcionEspecialidad.trim() : 'Ninguno';
 
     if (nombreLimpio.length > 100) {
       return res.status(400).json({
@@ -174,9 +174,7 @@ async function actualizarEspecialidad(req, res, next) {
     }
 
     const nombreLimpio = nombreEspecialidad.trim();
-    const descripcionLimpia = descripcionEspecialidad !== undefined
-      ? (descripcionEspecialidad ? descripcionEspecialidad.trim() : null)
-      : null;
+    const descripcionLimpia = descripcionEspecialidad && descripcionEspecialidad.trim() ? descripcionEspecialidad.trim() : 'Ninguno';
 
     if (nombreLimpio.length > 100) {
       return res.status(400).json({

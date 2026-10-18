@@ -62,5 +62,8 @@ router.use('/auth', authRoutes);
 const especialidadesRoutes = require('./especialidades.routes');
 router.use('/especialidades', especialidadesRoutes);
 
+const infraestructuraRoutes = require('./infraestructura.routes');
+router.use('/infraestructura', infraestructuraRoutes);
+
 module.exports = router;
 

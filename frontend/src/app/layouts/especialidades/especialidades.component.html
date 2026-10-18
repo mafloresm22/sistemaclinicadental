@@ -73,10 +73,10 @@
 
                   <!-- Columna: Descripción -->
                   <td>
-                    @if (item.descripcionEspecialidad) {
+                    @if (item.descripcionEspecialidad && item.descripcionEspecialidad !== 'Ninguno') {
                       <span class="text-muted">{{ item.descripcionEspecialidad }}</span>
                     } @else {
-                      <span class="text-muted fst-italic small">Sin descripción</span>
+                      <span class="text-muted fst-italic small">Ninguno</span>
                     }
                   </td>
 
