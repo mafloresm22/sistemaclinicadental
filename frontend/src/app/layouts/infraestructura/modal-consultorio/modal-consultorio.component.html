@@ -14,102 +14,92 @@
 
     <!-- Si no hay sedes creadas, mostrar aviso prioritario -->
     @if (sedesDisponibles.length === 0) {
-      <div class="modal-body px-4 py-4 text-center">
-        <div class="alert-icon-box text-warning mb-3">
-          <i antIcon type="alert" theme="outline" style="font-size: 3rem;"></i>
-        </div>
-        <h5 class="fw-bold text-dark mb-2">Se requiere registrar una Sede primero</h5>
-        <p class="text-muted small mb-4">
-          Para crear y asociar un consultorio dental, el sistema necesita que exista al menos una sede física registrada y activa.
-        </p>
-        <div class="d-flex justify-content-center gap-2">
-          <button type="button" class="btn btn-outline-secondary px-3" (click)="cerrar()">
-            Cerrar
-          </button>
-          <button type="button" class="btn btn-primary px-4 d-inline-flex align-items-center gap-2" (click)="irACrearSede()">
-            <i antIcon type="plus-circle" theme="outline"></i>
-            <span>Registrar Primera Sede</span>
-          </button>
-        </div>
+    <div class="modal-body px-4 py-4 text-center">
+      <div class="alert-icon-box text-warning mb-3">
+        <i antIcon type="alert" theme="outline" style="font-size: 3rem;"></i>
       </div>
+      <h5 class="fw-bold text-dark mb-2">Se requiere registrar una Sede primero</h5>
+      <p class="text-muted small mb-4">
+        Para crear y asociar un consultorio dental, el sistema necesita que exista al menos una sede física registrada y
+        activa.
+      </p>
+      <div class="d-flex justify-content-center gap-2">
+        <button type="button" class="btn btn-outline-secondary px-3" (click)="cerrar()">
+          Cerrar
+        </button>
+        <button type="button" class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+          (click)="irACrearSede()">
+          <i antIcon type="plus-circle" theme="outline"></i>
+          <span>Registrar Primera Sede</span>
+        </button>
+      </div>
+    </div>
     } @else {
-      <!-- Modal Body (Formulario) -->
-      <form [formGroup]="formConsultorio" (ngSubmit)="guardar()">
-        <div class="modal-body px-4 py-4">
+    <!-- Modal Body (Formulario) -->
+    <form [formGroup]="formConsultorio" (ngSubmit)="guardar()">
+      <div class="modal-body px-4 py-4">
 
-          <!-- Selección de la Sede -->
-          <div class="mb-3">
-            <label for="sedeId" class="form-label fw-semibold text-secondary small">
-              Sede a la que pertenece <span class="text-danger">*</span>
-            </label>
-            <select
-              id="sedeId"
-              class="form-select"
-              formControlName="sedeId"
-              [class.is-invalid]="formConsultorio.get('sedeId')?.invalid && formConsultorio.get('sedeId')?.touched"
-            >
-              <option [ngValue]="null" disabled>-- Selecciona una Sede --</option>
-              @for (s of sedesDisponibles; track s.idSede) {
-                <option [value]="s.idSede">
-                  {{ s.nombreSede }} ({{ s.estadoSede }})
-                </option>
-              }
-            </select>
-            @if (formConsultorio.get('sedeId')?.invalid && formConsultorio.get('sedeId')?.touched) {
-              <div class="invalid-feedback">
-                Debes seleccionar una sede.
-              </div>
+        <!-- Selección de la Sede -->
+        <div class="mb-3">
+          <label for="sedeId" class="form-label fw-semibold text-secondary small">
+            Sede a la que pertenece <span class="text-danger">*</span>
+          </label>
+          <select id="sedeId" class="form-select" formControlName="sedeId"
+            [class.is-invalid]="formConsultorio.get('sedeId')?.invalid && formConsultorio.get('sedeId')?.touched">
+            <option [ngValue]="null" disabled>-- Selecciona una Sede --</option>
+            @for (s of sedesDisponibles; track s.idSede) {
+            <option [value]="s.idSede">
+              {{ s.nombreSede }}
+            </option>
             }
+          </select>
+          @if (formConsultorio.get('sedeId')?.invalid && formConsultorio.get('sedeId')?.touched) {
+          <div class="invalid-feedback">
+            Debes seleccionar una sede.
           </div>
-
-          <!-- Nombre del Consultorio -->
-          <div class="mb-3">
-            <label for="nombreConsultorio" class="form-label fw-semibold text-secondary small">
-              Nombre o Número de Consultorio <span class="text-danger">*</span>
-            </label>
-            <input
-              id="nombreConsultorio"
-              type="text"
-              class="form-control"
-              placeholder="Ej. Consultorio 101, Sillón A - Ortodoncia, Cirugía..."
-              formControlName="nombreConsultorio"
-              [class.is-invalid]="formConsultorio.get('nombreConsultorio')?.invalid && formConsultorio.get('nombreConsultorio')?.touched"
-            />
-            @if (formConsultorio.get('nombreConsultorio')?.invalid && formConsultorio.get('nombreConsultorio')?.touched) {
-              <div class="invalid-feedback">
-                @if (formConsultorio.get('nombreConsultorio')?.errors?.['required']) {
-                  El nombre del consultorio es obligatorio.
-                }
-                @if (formConsultorio.get('nombreConsultorio')?.errors?.['maxlength']) {
-                  No puede superar los 80 caracteres.
-                }
-              </div>
-            }
-          </div>
-
+          }
         </div>
 
-        <!-- Modal Footer -->
-        <div class="modal-footer border-top px-4 py-3 bg-light rounded-bottom-4 d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-danger px-3" (click)="cerrar()" [disabled]="guardando">
-            Cancelar
-          </button>
-
-          <button
-            type="submit"
-            class="btn btn-primary px-4 d-inline-flex align-items-center gap-2 shadow-sm"
-            [disabled]="guardando || formConsultorio.invalid"
-          >
-            @if (guardando) {
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              <span>Guardando...</span>
-            } @else {
-              <i antIcon type="check" theme="outline"></i>
-              <span>{{ modoEdicion ? 'Actualizar Consultorio' : 'Guardar Consultorio' }}</span>
+        <!-- Nombre del Consultorio -->
+        <div class="mb-3">
+          <label for="nombreConsultorio" class="form-label fw-semibold text-secondary small">
+            Nombre o Número de Consultorio <span class="text-danger">*</span>
+          </label>
+          <input id="nombreConsultorio" type="text" class="form-control"
+            placeholder="Ej. Consultorio 101, Sillón A - Ortodoncia, Cirugía..." formControlName="nombreConsultorio"
+            [class.is-invalid]="formConsultorio.get('nombreConsultorio')?.invalid && formConsultorio.get('nombreConsultorio')?.touched" />
+          @if (formConsultorio.get('nombreConsultorio')?.invalid && formConsultorio.get('nombreConsultorio')?.touched) {
+          <div class="invalid-feedback">
+            @if (formConsultorio.get('nombreConsultorio')?.errors?.['required']) {
+            El nombre del consultorio es obligatorio.
             }
-          </button>
+            @if (formConsultorio.get('nombreConsultorio')?.errors?.['maxlength']) {
+            No puede superar los 80 caracteres.
+            }
+          </div>
+          }
         </div>
-      </form>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer border-top px-4 py-3 bg-light rounded-bottom-4 d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-danger px-3" (click)="cerrar()" [disabled]="guardando">
+          Cancelar
+        </button>
+
+        <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-2 shadow-sm"
+          [disabled]="guardando || formConsultorio.invalid">
+          @if (guardando) {
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          <span>Guardando...</span>
+          } @else {
+          <i antIcon type="check" theme="outline"></i>
+          <span>{{ modoEdicion ? 'Actualizar Consultorio' : 'Guardar Consultorio' }}</span>
+          }
+        </button>
+      </div>
+    </form>
     }
 
   </div>

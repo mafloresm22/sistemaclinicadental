@@ -2,7 +2,7 @@
   <div class="col-12">
     <app-card [showHeader]="false" blockClass="p-4">
 
-      <!-- Header del Módulo con Tabs Unificadas -->
+      <!-- Header del Módulo con Tabs -->
       <div
         class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 pb-3 mb-4 border-bottom">
         <div>
@@ -11,7 +11,7 @@
             <span>Infraestructura Clínica</span>
           </h4>
           <p class="text-muted small mb-0">
-            Administración unificada de sedes físicas y consultorios odontológicos de la clínica
+            Administración de sedes físicas y consultorios odontológicos de la clínica
           </p>
         </div>
 
@@ -159,7 +159,7 @@
                   }
                   @if (item.telefonoSede && item.telefonoSede !== 'Ninguno') {
                   <span class="text-muted small">
-                    📞 {{ item.telefonoSede }}
+                    <i antIcon type="phone" theme="outline" class="me-1"></i>{{ item.telefonoSede }}
                   </span>
                   } @else {
                   <span class="text-muted fst-italic small">Teléfono: Ninguno</span>
@@ -178,10 +178,10 @@
                       (click)="verConsultoriosDeSede(item)" title="Ver consultorios de esta sede">
                       Ver todos
                     </button>
-                    <span class="text-muted mx-1">·</span>
+                    <span class="text-muted mx-1">|</span>
                     <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-success small"
                       (click)="abrirModalCrearConsultorio(item.idSede)" title="Agregar consultorio a esta sede">
-                      + Agregar
+                      <i antIcon type="plus" theme="outline" class="me-1"></i>Agregar
                     </button>
                   </div>
                 </div>

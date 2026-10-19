@@ -24,7 +24,8 @@ import {
   AlertOutline,
   InfoCircleOutline,
   EyeOutline,
-  SwapOutline
+  SwapOutline,
+  PhoneOutline
 } from '@ant-design/icons-angular/icons';
 import Swal from 'sweetalert2';
 
@@ -60,7 +61,8 @@ export class InfraestructuraComponent implements OnInit {
       AlertOutline,
       InfoCircleOutline,
       EyeOutline,
-      SwapOutline
+      SwapOutline,
+      PhoneOutline
     );
   }
 
