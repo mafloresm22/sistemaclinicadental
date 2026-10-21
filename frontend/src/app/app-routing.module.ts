@@ -42,6 +42,10 @@ const routes: Routes = [
       {
         path: 'infraestructura',
         loadComponent: () => import('./layouts/infraestructura/infraestructura.component').then((c) => c.InfraestructuraComponent)
+      },
+      {
+        path: 'tratamientos',
+        loadComponent: () => import('./layouts/tratamientos/tratamientos.component').then((c) => c.TratamientosComponent)
       }
     ]
   },

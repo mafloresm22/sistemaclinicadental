@@ -61,6 +61,7 @@ const options = {
       { name: 'Pacientes', description: 'Gestión de pacientes' },
       { name: 'Médicos', description: 'Gestión de médicos' },
       { name: 'Citas', description: 'Gestión de citas médicas' },
+      { name: 'Tratamientos', description: 'Gestión de tratamientos odontológicos' },
     ],
   },
   // Archivos donde swagger-jsdoc buscará comentarios JSDoc con @swagger

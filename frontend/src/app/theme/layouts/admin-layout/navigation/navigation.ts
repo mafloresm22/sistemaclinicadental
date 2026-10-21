@@ -48,7 +48,7 @@ export const NavigationItems: NavigationItem[] = [
         type: 'item',
         classes: 'nav-item',
         url: '/especialidades',
-        icon: 'heart'
+        icon: 'build'
       },
       {
         id: 'infraestructura',
@@ -57,6 +57,14 @@ export const NavigationItems: NavigationItem[] = [
         classes: 'nav-item',
         url: '/infraestructura',
         icon: 'home'
+      },
+      {
+        id: 'tratamientos',
+        title: 'Tratamientos',
+        type: 'item',
+        classes: 'nav-item',
+        url: '/tratamientos',
+        icon: 'heart'
       }
     ]
   }

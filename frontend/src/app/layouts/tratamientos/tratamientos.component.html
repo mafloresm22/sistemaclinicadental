@@ -1,0 +1,274 @@
+<div class="row">
+  <div class="col-12">
+    <app-card [showHeader]="false" blockClass="p-4">
+
+      <!-- Título + Estadísticas -->
+      <div class="tratamientos-header mb-4">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+          <div>
+            <h4 class="page-title mb-1">
+              <i antIcon type="medicine-box" theme="outline" class="title-icon"></i>
+              Tratamientos Dentales
+            </h4>
+            <p class="text-muted mb-0 small">Gestiona el catálogo de tratamientos disponibles en la clínica</p>
+          </div>
+          <div class="stats-chips d-flex gap-2 flex-wrap">
+            <span class="stat-chip stat-chip--total">
+              <span class="stat-chip__number">{{ totalRegistros }}</span>
+              <span class="stat-chip__label">Total</span>
+            </span>
+            <span class="stat-chip stat-chip--active">
+              <span class="stat-chip__number">{{ tratamientosActivos }}</span>
+              <span class="stat-chip__label">Activos</span>
+            </span>
+            <span class="stat-chip stat-chip--inactive">
+              <span class="stat-chip__number">{{ tratamientosInactivos }}</span>
+              <span class="stat-chip__label">Inactivos</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARRA DE CONTROLES -->
+      <div class="row align-items-center mb-4 g-3">
+
+        <!-- Búsqueda -->
+        <div class="col-12 col-md-5 col-lg-6">
+          <div class="search-box position-relative">
+            <i class="search-icon" antIcon type="search" theme="outline"></i>
+            <input type="text" class="form-control ps-5 py-2 search-input"
+              placeholder="Buscar tratamiento por nombre..." [(ngModel)]="terminoBusqueda" (keyup.enter)="onBuscar()"
+              (input)="onBuscar()" />
+            @if (terminoBusqueda) {
+            <button type="button" class="btn-clear position-absolute" (click)="limpiarBusqueda()"
+              title="Limpiar búsqueda">
+              <i antIcon type="close-circle" theme="outline"></i>
+            </button>
+            }
+          </div>
+        </div>
+
+        <!-- Filtro de Estado -->
+        <div class="col-12 col-sm-6 col-md-3 col-lg-2">
+          <div class="position-relative">
+            <i class="filter-icon" antIcon type="filter" theme="outline"></i>
+            <select class="form-select ps-5 py-2 filter-select" [(ngModel)]="filtroEstado"
+              (ngModelChange)="onFiltroEstadoCambio()">
+              <option value="">Todos</option>
+              <option value="Activo">Activos</option>
+              <option value="Inactivo">Inactivos</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Botón Nuevo -->
+        <div class="col-12 col-sm-6 col-md-4 col-lg-4 text-sm-end">
+          <button type="button"
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 btn-nuevo-tratamiento shadow-sm"
+            (click)="abrirModalCrear()">
+            <i antIcon type="plus" theme="outline"></i>
+            <span>Nuevo tratamiento</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ESTADO DE CARGA -->
+      @if (cargando) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="text-muted mt-2 mb-0 small">Cargando tratamientos...</p>
+      </div>
+      } @else {
+
+      <!-- GRID DE CARDS -->
+      @if (tratamientosPaginados.length > 0) {
+      <div class="tratamientos-grid">
+        @for (item of tratamientosPaginados; track item.idTratamiento) {
+        <div class="tratamiento-card" [class.tratamiento-card--inactivo]="item.estadoTratamiento === 'Inactivo'">
+
+          <!-- Badge de Estado -->
+          <div class="card-estado-badge" [class.card-estado-badge--activo]="item.estadoTratamiento === 'Activo'"
+            [class.card-estado-badge--inactivo]="item.estadoTratamiento === 'Inactivo'">
+            @if (item.estadoTratamiento === 'Activo') {
+            <i antIcon type="check-circle" theme="outline"></i>
+            } @else {
+            <i antIcon type="stop" theme="outline"></i>
+            }
+            {{ item.estadoTratamiento }}
+          </div>
+
+          <!-- Ícono Principal -->
+          <div class="card-icon-wrapper">
+            <div class="card-icon">
+              <i antIcon type="medicine-box" theme="outline"></i>
+            </div>
+          </div>
+
+          <!-- Contenido Principal -->
+          <div class="card-body-content">
+            <h6 class="card-nombre" [title]="item.nombreTratamiento">
+              {{ item.nombreTratamiento }}
+            </h6>
+            <p class="card-descripcion">
+              @if (item.descripcionTratamiento) {
+              {{ item.descripcionTratamiento }}
+              } @else {
+              <span class="text-muted fst-italic">Sin descripción</span>
+              }
+            </p>
+          </div>
+
+          <!-- Métricas: Duración y Costo -->
+          <div class="card-metrics">
+            <div class="card-metric">
+              <i antIcon type="clock-circle" theme="outline" class="metric-icon metric-icon--clock"></i>
+              <div>
+                <span class="metric-value">{{ formatearDuracion(item.duracionEstimadaMin) }}</span>
+                <span class="metric-label">Duración</span>
+              </div>
+            </div>
+            <div class="card-metric-divider"></div>
+            <div class="card-metric">
+              <i antIcon type="dollar" theme="outline" class="metric-icon metric-icon--dollar"></i>
+              <div>
+                <span class="metric-value metric-value--cost">{{ formatearCosto(item.costoBase) }}</span>
+                <span class="metric-label">Costo base</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="card-actions">
+            <button type="button" class="btn-card-action btn-card-edit" (click)="abrirModalEditar(item)"
+              title="Editar tratamiento">
+              <i antIcon type="edit" theme="outline"></i>
+              <span>Editar</span>
+            </button>
+            <button type="button" class="btn-card-action"
+              [class.btn-card-deactivate]="item.estadoTratamiento === 'Activo'"
+              [class.btn-card-activate]="item.estadoTratamiento === 'Inactivo'" (click)="confirmarCambioEstado(item)"
+              [title]="item.estadoTratamiento === 'Activo' ? 'Desactivar' : 'Activar'">
+              @if (item.estadoTratamiento === 'Activo') {
+              <i antIcon type="stop" theme="outline"></i>
+              <span>Desactivar</span>
+              } @else {
+              <i antIcon type="check-circle" theme="outline"></i>
+              <span>Activar</span>
+              }
+            </button>
+          </div>
+        </div>
+        }
+      </div>
+      } @else {
+      <!-- Estado vacío -->
+      <div class="empty-state py-5 text-center">
+        <div class="empty-icon text-muted mb-3">
+          <i antIcon type="inbox" theme="outline" style="font-size: 3rem;"></i>
+        </div>
+        <h6 class="text-secondary mb-1">No se encontraron tratamientos</h6>
+        <p class="text-muted small mb-3">
+          @if (terminoBusqueda || filtroEstado) {
+          No hay resultados para los filtros aplicados.
+          } @else {
+          Aún no hay tratamientos registrados en el sistema.
+          }
+        </p>
+        @if (terminoBusqueda || filtroEstado) {
+        <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limpiarBusqueda()">
+          Limpiar filtros
+        </button>
+        }
+      </div>
+      }
+
+      <!-- Info + Paginación -->
+      @if (totalRegistros > 0) {
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top">
+
+        <!-- Selector de tamaño + info registros -->
+        <div
+          class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 text-muted small">
+          <div class="d-flex align-items-center gap-2">
+            <span>Mostrar</span>
+            <select class="form-select form-select-sm select-page-size" [ngModel]="tamanioPagina"
+              (ngModelChange)="cambiarTamanioPagina($event)">
+              @for (tam of tamaniosPagina; track tam) {
+              <option [value]="tam">{{ tam }}</option>
+              }
+            </select>
+            <span>por pág.</span>
+          </div>
+          <span class="text-secondary">
+            Mostrando <strong>{{ indiceInicio }}</strong> a <strong>{{ indiceFin }}</strong> de <strong>{{
+              totalRegistros }}</strong> tratamientos
+          </span>
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPaginas > 1) {
+        <nav aria-label="Navegación de páginas">
+          <ul class="pagination pagination-sm mb-0 custom-pagination justify-content-center">
+            <!-- Primera -->
+            <li class="page-item" [class.disabled]="paginaActual === 1">
+              <button class="page-link" type="button" (click)="cambiarPagina(1)" [disabled]="paginaActual === 1"
+                title="Primera" aria-label="Primera">&laquo;</button>
+            </li>
+            <!-- Anterior -->
+            <li class="page-item" [class.disabled]="paginaActual === 1">
+              <button class="page-link" type="button" (click)="cambiarPagina(paginaActual - 1)"
+                [disabled]="paginaActual === 1" title="Anterior" aria-label="Anterior">&lsaquo;</button>
+            </li>
+
+            @if (paginasVisibles.length > 0 && paginasVisibles[0] > 1) {
+            <li class="page-item">
+              <button class="page-link" type="button" (click)="cambiarPagina(1)">1</button>
+            </li>
+            @if (paginasVisibles[0] > 2) {
+            <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+            }
+            }
+
+            @for (p of paginasVisibles; track p) {
+            <li class="page-item" [class.active]="p === paginaActual">
+              <button class="page-link" type="button" (click)="cambiarPagina(p)">{{ p }}</button>
+            </li>
+            }
+
+            @if (paginasVisibles.length > 0 && paginasVisibles[paginasVisibles.length - 1] < totalPaginas) { @if
+              (paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1) { <li class="page-item disabled"><span
+                class="page-link">&hellip;</span></li>
+              }
+              <li class="page-item">
+                <button class="page-link" type="button" (click)="cambiarPagina(totalPaginas)">{{ totalPaginas
+                  }}</button>
+              </li>
+              }
+
+              <!-- Siguiente -->
+              <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                <button class="page-link" type="button" (click)="cambiarPagina(paginaActual + 1)"
+                  [disabled]="paginaActual === totalPaginas" title="Siguiente" aria-label="Siguiente">&rsaquo;</button>
+              </li>
+              <!-- Última -->
+              <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                <button class="page-link" type="button" (click)="cambiarPagina(totalPaginas)"
+                  [disabled]="paginaActual === totalPaginas" title="Última" aria-label="Última">&raquo;</button>
+              </li>
+          </ul>
+        </nav>
+        }
+      </div>
+      }
+      }
+
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal Crear / Editar Tratamiento -->
+<app-modal-tratamientos [visible]="modalAbierto" [tratamiento]="tratamientoSeleccionado"
+  (guardado)="onTratamientoGuardado()" (cerrado)="cerrarModal()">
+</app-modal-tratamientos>

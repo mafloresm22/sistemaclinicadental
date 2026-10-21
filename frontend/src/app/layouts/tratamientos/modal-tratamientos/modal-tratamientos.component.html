@@ -1,0 +1,143 @@
+@if (visible) {
+<div class="custom-modal-backdrop" (click)="cerrar()"></div>
+<div class="custom-modal-dialog">
+  <div class="custom-modal-content shadow-lg border-0 rounded-4">
+
+    <!-- Modal Header -->
+    <div class="modal-header border-bottom px-4 py-3 align-items-center justify-content-between">
+      <h5 class="modal-title fw-bold text-dark m-0 d-flex align-items-center gap-2">
+        <i antIcon [type]="modoEdicion ? 'edit' : 'medicine-box'" theme="outline" class="text-primary"></i>
+        <span>{{ modoEdicion ? 'Editar Tratamiento' : 'Nuevo Tratamiento' }}</span>
+      </h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="cerrar()"></button>
+    </div>
+
+    <!-- Modal Body -->
+    <form [formGroup]="formTratamiento" (ngSubmit)="guardar()">
+      <div class="modal-body px-4 py-4">
+
+        <!-- Nombre -->
+        <div class="mb-3">
+          <label for="nombreTratamiento" class="form-label fw-semibold text-secondary small">
+            Nombre del tratamiento <span class="text-danger">*</span>
+          </label>
+          <input
+            id="nombreTratamiento"
+            type="text"
+            class="form-control"
+            placeholder="Ej. Blanqueamiento dental, Profilaxis..."
+            formControlName="nombreTratamiento"
+            [class.is-invalid]="formTratamiento.get('nombreTratamiento')?.invalid && formTratamiento.get('nombreTratamiento')?.touched"
+          />
+          @if (formTratamiento.get('nombreTratamiento')?.invalid && formTratamiento.get('nombreTratamiento')?.touched) {
+            <div class="invalid-feedback">
+              @if (formTratamiento.get('nombreTratamiento')?.errors?.['required']) {
+                El nombre del tratamiento es obligatorio.
+              }
+              @if (formTratamiento.get('nombreTratamiento')?.errors?.['maxlength']) {
+                No puede superar los 120 caracteres.
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Descripción -->
+        <div class="mb-3">
+          <label for="descripcionTratamiento" class="form-label fw-semibold text-secondary small">
+            Descripción <span class="text-muted fw-normal">(Opcional)</span>
+          </label>
+          <textarea
+            id="descripcionTratamiento"
+            rows="3"
+            class="form-control"
+            placeholder="Breve descripción del tratamiento..."
+            formControlName="descripcionTratamiento"
+            [class.is-invalid]="formTratamiento.get('descripcionTratamiento')?.invalid && formTratamiento.get('descripcionTratamiento')?.touched"
+          ></textarea>
+          @if (formTratamiento.get('descripcionTratamiento')?.invalid && formTratamiento.get('descripcionTratamiento')?.touched) {
+            <div class="invalid-feedback">
+              La descripción no puede superar los 255 caracteres.
+            </div>
+          }
+          <div class="text-end text-muted small mt-1">
+            {{ formTratamiento.get('descripcionTratamiento')?.value?.length || 0 }}/255
+          </div>
+        </div>
+
+        <!-- Duración y Costo Base en fila -->
+        <div class="row g-3">
+          <!-- Duración -->
+          <div class="col-6">
+            <label for="duracionEstimadaMin" class="form-label fw-semibold text-secondary small">
+              Duración (minutos) <span class="text-muted fw-normal">(Opcional)</span>
+            </label>
+            <input
+              id="duracionEstimadaMin"
+              type="number"
+              class="form-control"
+              placeholder="Ej. 30, 60..."
+              formControlName="duracionEstimadaMin"
+              min="1"
+              step="1"
+              [class.is-invalid]="formTratamiento.get('duracionEstimadaMin')?.invalid && formTratamiento.get('duracionEstimadaMin')?.touched"
+            />
+            @if (formTratamiento.get('duracionEstimadaMin')?.invalid && formTratamiento.get('duracionEstimadaMin')?.touched) {
+              <div class="invalid-feedback">
+                Debe ser un número entero positivo.
+              </div>
+            }
+          </div>
+
+          <!-- Costo Base -->
+          <div class="col-6">
+            <label for="costoBase" class="form-label fw-semibold text-secondary small">
+              Costo base (S/.) <span class="text-danger">*</span>
+            </label>
+            <input
+              id="costoBase"
+              type="number"
+              class="form-control"
+              placeholder="0.00"
+              formControlName="costoBase"
+              min="0"
+              step="0.01"
+              [class.is-invalid]="formTratamiento.get('costoBase')?.invalid && formTratamiento.get('costoBase')?.touched"
+            />
+            @if (formTratamiento.get('costoBase')?.invalid && formTratamiento.get('costoBase')?.touched) {
+              <div class="invalid-feedback">
+                @if (formTratamiento.get('costoBase')?.errors?.['required']) {
+                  El costo base es obligatorio.
+                }
+                @if (formTratamiento.get('costoBase')?.errors?.['min']) {
+                  El costo no puede ser negativo.
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="modal-footer border-top px-4 py-3 bg-light rounded-bottom-4 d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-danger px-3" (click)="cerrar()" [disabled]="guardando">
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+          [disabled]="guardando || formTratamiento.invalid">
+          @if (guardando) {
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span>Guardando...</span>
+          } @else {
+            <i antIcon type="check" theme="outline"></i>
+            <span>{{ modoEdicion ? 'Actualizar' : 'Guardar' }}</span>
+          }
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+}
