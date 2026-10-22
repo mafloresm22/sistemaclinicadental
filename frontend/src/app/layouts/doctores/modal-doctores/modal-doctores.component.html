@@ -1,0 +1,152 @@
+@if (visible) {
+<div class="custom-modal-backdrop" (click)="cerrar()"></div>
+<div class="custom-modal-dialog">
+    <div class="custom-modal-content shadow-lg border-0 rounded-4">
+
+        <!-- Header -->
+        <div class="modal-header border-bottom px-4 py-3 d-flex align-items-center justify-content-between">
+            <h5 class="modal-title fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                <i antIcon [type]="modoEdicion ? 'edit' : 'user-add'" theme="outline" class="text-primary"></i>
+                <span>{{ modoEdicion ? 'Editar Doctor' : 'Nuevo Doctor' }}</span>
+            </h5>
+            <button type="button" class="btn-close" aria-label="Cerrar" (click)="cerrar()"></button>
+        </div>
+
+        <!-- Formulario -->
+        <form [formGroup]="formDoctor" (ngSubmit)="guardar()">
+            <div class="modal-body px-4 py-4">
+
+                <!-- Fila 1: Nombre + Apellidos -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-6">
+                        <label for="nombreDoctor" class="form-label fw-semibold text-secondary small">
+                            Nombre <span class="text-danger">*</span>
+                        </label>
+                        <input id="nombreDoctor" type="text" class="form-control" placeholder="Ej. Carlos"
+                            formControlName="nombreDoctor"
+                            [class.is-invalid]="campo('nombreDoctor')?.invalid && campo('nombreDoctor')?.touched" />
+                        @if (campo('nombreDoctor')?.invalid && campo('nombreDoctor')?.touched) {
+                        <div class="invalid-feedback">
+                            @if (campo('nombreDoctor')?.errors?.['required']) { El nombre es obligatorio. }
+                            @if (campo('nombreDoctor')?.errors?.['maxlength']) { Máximo 80 caracteres. }
+                        </div>
+                        }
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label for="apellidosDoctor" class="form-label fw-semibold text-secondary small">
+                            Apellidos <span class="text-danger">*</span>
+                        </label>
+                        <input id="apellidosDoctor" type="text" class="form-control" placeholder="Ej. Ramírez Torres"
+                            formControlName="apellidosDoctor"
+                            [class.is-invalid]="campo('apellidosDoctor')?.invalid && campo('apellidosDoctor')?.touched" />
+                        @if (campo('apellidosDoctor')?.invalid && campo('apellidosDoctor')?.touched) {
+                        <div class="invalid-feedback">
+                            @if (campo('apellidosDoctor')?.errors?.['required']) { Los apellidos son obligatorios. }
+                            @if (campo('apellidosDoctor')?.errors?.['maxlength']) { Máximo 100 caracteres. }
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Fila 2: Tipo Documento + Nro Documento -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-4">
+                        <label for="tipoDocumento" class="form-label fw-semibold text-secondary small">
+                            Tipo Doc. <span class="text-danger">*</span>
+                        </label>
+                        <select id="tipoDocumento" class="form-select" formControlName="tipoDocumento">
+                            <option value="DNI">DNI</option>
+                            <option value="CE">CE</option>
+                            <option value="Pasaporte">Pasaporte</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-8">
+                        <label for="documentoDoctor" class="form-label fw-semibold text-secondary small">
+                            N° Documento <span class="text-danger">*</span>
+                        </label>
+                        <input id="documentoDoctor" type="text" class="form-control" placeholder="Ej. 74512345"
+                            formControlName="documentoDoctor"
+                            [class.is-invalid]="campo('documentoDoctor')?.invalid && campo('documentoDoctor')?.touched" />
+                        @if (campo('documentoDoctor')?.invalid && campo('documentoDoctor')?.touched) {
+                        <div class="invalid-feedback">
+                            @if (campo('documentoDoctor')?.errors?.['required']) { El documento es obligatorio. }
+                            @if (campo('documentoDoctor')?.errors?.['maxlength']) { Máximo 20 caracteres. }
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Fila 3: N° Colegiatura + Celular -->
+                <div class="row g-3 mb-3">
+                    <div class="col-12 col-sm-6">
+                        <label for="nroColegiatura" class="form-label fw-semibold text-secondary small">
+                            N° Colegiatura <span class="text-muted fw-normal">(Opcional)</span>
+                        </label>
+                        <input id="nroColegiatura" type="text" class="form-control" placeholder="Ej. COP-12345"
+                            formControlName="nroColegiatura" />
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label for="celularDoctor" class="form-label fw-semibold text-secondary small">
+                            Celular <span class="text-muted fw-normal">(Opcional)</span>
+                        </label>
+                        <input id="celularDoctor" type="text" class="form-control" placeholder="Ej. 987654321"
+                            formControlName="celularDoctor" />
+                    </div>
+                </div>
+
+                <!-- Correo -->
+                <div class="mb-3">
+                    <label for="correoDoctor" class="form-label fw-semibold text-secondary small">
+                        Correo Electrónico <span class="text-muted fw-normal">(Opcional)</span>
+                    </label>
+                    <input id="correoDoctor" type="email" class="form-control" placeholder="Ej. doctor@clinica.com"
+                        formControlName="correoDoctor"
+                        [class.is-invalid]="campo('correoDoctor')?.invalid && campo('correoDoctor')?.touched" />
+                    @if (campo('correoDoctor')?.invalid && campo('correoDoctor')?.touched) {
+                    <div class="invalid-feedback">Ingresa un correo electrónico válido.</div>
+                    }
+                </div>
+
+                <!-- Información de usuario y contraseña automáticos -->
+                @if (!modoEdicion) {
+                <div class="user-credentials-note mt-3 p-3 rounded-3">
+                    <div class="d-flex align-items-center gap-2 mb-1 text-primary fw-semibold small">
+                        <i antIcon type="user" theme="outline"></i>
+                        <span>Usuario y contraseña automáticos</span>
+                    </div>
+                    <div class="text-secondary small">
+                        Se generará automáticamente su cuenta de acceso al sistema con el usuario y contraseña que
+                        figuran en el DNI.
+                    </div>
+                </div>
+                }
+
+                <!-- Nota: estado automático -->
+                <div class="info-note mt-2">
+                    <i antIcon type="info-circle" theme="outline" class="me-1"></i>
+                    El estado se asigna automáticamente como <strong>Activo</strong> al crear.
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-top px-4 py-3 bg-light rounded-bottom-4 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-danger px-3" (click)="cerrar()" [disabled]="guardando">
+                    Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                    [disabled]="guardando || formDoctor.invalid">
+                    @if (guardando) {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Guardando...</span>
+                    } @else {
+                    <i antIcon type="check" theme="outline"></i>
+                    <span>{{ modoEdicion ? 'Actualizar' : 'Guardar' }}</span>
+                    }
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+}

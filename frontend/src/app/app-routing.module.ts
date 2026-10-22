@@ -46,6 +46,10 @@ const routes: Routes = [
       {
         path: 'tratamientos',
         loadComponent: () => import('./layouts/tratamientos/tratamientos.component').then((c) => c.TratamientosComponent)
+      },
+      {
+        path: 'doctores',
+        loadComponent: () => import('./layouts/doctores/doctores.component').then((c) => c.DoctoresComponent)
       }
     ]
   },

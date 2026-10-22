@@ -23,7 +23,11 @@ import {
   AntDesignOutline,
   HomeOutline,
   HeartOutline,
-  BuildOutline
+  BuildOutline,
+  SolutionOutline,
+  CalendarOutline,
+  UserAddOutline,
+
 } from '@ant-design/icons-angular/icons';
 import { NgScrollbarModule } from 'ngx-scrollbar';
 
@@ -65,7 +69,10 @@ export class NavContentComponent implements OnInit {
         QuestionOutline,
         HomeOutline,
         HeartOutline,
-        BuildOutline
+        BuildOutline,
+        SolutionOutline,
+        CalendarOutline,
+        UserAddOutline
       ]
     );
     this.navigations = NavigationItems;

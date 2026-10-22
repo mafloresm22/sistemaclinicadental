@@ -65,6 +65,9 @@ router.use('/especialidades', especialidadesRoutes);
 const infraestructuraRoutes = require('./infraestructura.routes');
 router.use('/infraestructura', infraestructuraRoutes);
 
+const doctoresRoutes = require('./doctores.routes');
+router.use('/doctores', doctoresRoutes);
+
 const tratamientosRoutes = require('./tratamientos.routes');
 router.use('/tratamientos', tratamientosRoutes);
 

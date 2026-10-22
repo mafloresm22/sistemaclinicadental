@@ -67,5 +67,37 @@ export const NavigationItems: NavigationItem[] = [
         icon: 'heart'
       }
     ]
+  },
+  {
+    id: 'gestion',
+    title: 'Gestión',
+    type: 'group',
+    icon: 'icon-navigation',
+    children: [
+      {
+        id: 'pacientes',
+        title: 'Pacientes',
+        type: 'item',
+        classes: 'nav-item',
+        url: '/pacientes',
+        icon: 'solution'
+      },
+      {
+        id: 'citas',
+        title: 'Citas',
+        type: 'item',
+        classes: 'nav-item',
+        url: '/citas',
+        icon: 'calendar'
+      },
+      {
+        id: 'doctores',
+        title: 'Doctores',
+        type: 'item',
+        classes: 'nav-item',
+        url: '/doctores',
+        icon: 'user-add'
+      }
+    ]
   }
 ];

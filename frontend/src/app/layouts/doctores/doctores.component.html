@@ -1,0 +1,260 @@
+<div class="row">
+  <div class="col-12">
+    <app-card [showHeader]="false" blockClass="p-4">
+
+      <!-- Fila superior: Búsqueda + Filtro Estado + Botón Nuevo -->
+      <div class="row align-items-center mb-4 g-3">
+
+        <!-- Búsqueda -->
+        <div class="col-12 col-md-5 col-lg-6">
+          <div class="search-box position-relative">
+            <i class="search-icon" antIcon type="search" theme="outline"></i>
+            <input
+              type="text"
+              class="form-control ps-5 py-2 search-input"
+              placeholder="Buscar por nombre, apellidos o documento..."
+              [(ngModel)]="terminoBusqueda"
+              (keyup.enter)="onBuscar()"
+              (input)="onBuscar()"
+            />
+            @if (terminoBusqueda) {
+              <button
+                type="button"
+                class="btn-clear position-absolute"
+                (click)="limpiarBusqueda()"
+                title="Limpiar búsqueda">
+                <i antIcon type="close-circle" theme="outline"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Filtro Estado -->
+        <div class="col-6 col-md-3 col-lg-3">
+          <select
+            class="form-select filter-select"
+            [(ngModel)]="filtroEstado"
+            (ngModelChange)="onBuscar()">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+
+        <!-- Botón Nuevo Doctor -->
+        <div class="col-6 col-md-4 col-lg-3 text-end">
+          <button
+            type="button"
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 btn-nuevo shadow-sm w-100"
+            (click)="abrirModalCrear()">
+            <i antIcon type="plus" theme="outline"></i>
+            <span>Nuevo Doctor</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado de Carga -->
+      @if (cargando) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="text-muted mt-2 mb-0 small">Cargando doctores...</p>
+        </div>
+      } @else {
+
+        <!-- Grid de Cards -->
+        @if (doctoresPaginados.length > 0) {
+          <div class="row g-3 cards-grid">
+            @for (doc of doctoresPaginados; track doc.idDoctor) {
+              <div class="col-12 col-sm-6 col-xl-4">
+                <div class="doctor-card" [class.inactivo]="doc.estadoDoctor === 'Inactivo'">
+
+                  <!-- Header de la Card -->
+                  <div class="card-header-custom d-flex align-items-center gap-3">
+                    <!-- Avatar con iniciales -->
+                    <div class="avatar-circle">
+                      <span>{{ getIniciales(doc) }}</span>
+                    </div>
+                    <!-- Nombre + estado -->
+                    <div class="flex-grow-1 overflow-hidden">
+                      <p class="card-nombre mb-0 text-truncate">
+                        {{ doc.nombreDoctor }} {{ doc.apellidosDoctor }}
+                      </p>
+                      <span class="badge-estado" [class.activo]="doc.estadoDoctor === 'Activo'" [class.inactivo]="doc.estadoDoctor === 'Inactivo'">
+                        <span class="dot"></span>
+                        {{ doc.estadoDoctor }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Detalles -->
+                  <div class="card-body-custom">
+
+                    @if (doc.especialidades) {
+                      <div class="detail-item">
+                        <i antIcon type="medicine-box" theme="outline" class="detail-icon text-primary"></i>
+                        <span class="text-truncate">{{ doc.especialidades }}</span>
+                      </div>
+                    }
+
+                    <div class="detail-item">
+                      <i antIcon type="id-card" theme="outline" class="detail-icon"></i>
+                      <span>{{ doc.tipoDocumento }}: {{ doc.documentoDoctor }}</span>
+                    </div>
+
+                    @if (doc.nroColegiatura) {
+                      <div class="detail-item">
+                        <i antIcon type="safety-certificate" theme="outline" class="detail-icon"></i>
+                        <span>COP: {{ doc.nroColegiatura }}</span>
+                      </div>
+                    }
+
+                    @if (doc.celularDoctor) {
+                      <div class="detail-item">
+                        <i antIcon type="phone" theme="outline" class="detail-icon"></i>
+                        <span>{{ doc.celularDoctor }}</span>
+                      </div>
+                    }
+
+                    @if (doc.correoDoctor) {
+                      <div class="detail-item">
+                        <i antIcon type="mail" theme="outline" class="detail-icon"></i>
+                        <span class="text-truncate">{{ doc.correoDoctor }}</span>
+                      </div>
+                    }
+
+                  </div>
+
+                  <!-- Acciones -->
+                  <div class="card-footer-custom d-flex gap-2 justify-content-end">
+                    <button
+                      type="button"
+                      class="btn btn-action btn-edit"
+                      (click)="abrirModalEditar(doc)"
+                      title="Editar doctor">
+                      <i antIcon type="edit" theme="outline"></i>
+                      <span>Editar</span>
+                    </button>
+
+                    @if (doc.estadoDoctor === 'Activo') {
+                      <button
+                        type="button"
+                        class="btn btn-action btn-deactivate"
+                        (click)="confirmarDesactivar(doc)"
+                        title="Desactivar doctor">
+                        <i antIcon type="stop" theme="outline"></i>
+                        <span>Desactivar</span>
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        class="btn btn-action btn-activate"
+                        (click)="confirmarActivar(doc)"
+                        title="Activar doctor">
+                        <i antIcon type="check-circle" theme="outline"></i>
+                        <span>Activar</span>
+                      </button>
+                    }
+                  </div>
+
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Footer: Info + Paginación -->
+          @if (totalRegistros > 0) {
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-3 border-top">
+
+              <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
+                <div class="d-flex align-items-center gap-2">
+                  <span>Mostrar</span>
+                  <select
+                    class="form-select form-select-sm select-page-size"
+                    [ngModel]="tamanioPagina"
+                    (ngModelChange)="cambiarTamanioPagina($event)">
+                    @for (tam of tamaniosPagina; track tam) {
+                      <option [value]="tam">{{ tam }}</option>
+                    }
+                  </select>
+                  <span>por pág.</span>
+                </div>
+                <span class="text-secondary">
+                  Mostrando <strong>{{ indiceInicio }}</strong> a <strong>{{ indiceFin }}</strong> de <strong>{{ totalRegistros }}</strong> doctores
+                </span>
+              </div>
+
+              @if (totalPaginas > 1) {
+                <nav aria-label="Navegación de páginas">
+                  <ul class="pagination pagination-sm mb-0 custom-pagination justify-content-center">
+                    <li class="page-item" [class.disabled]="paginaActual === 1">
+                      <button class="page-link" type="button" (click)="cambiarPagina(1)" [disabled]="paginaActual === 1" title="Primera">&laquo;</button>
+                    </li>
+                    <li class="page-item" [class.disabled]="paginaActual === 1">
+                      <button class="page-link" type="button" (click)="cambiarPagina(paginaActual - 1)" [disabled]="paginaActual === 1">&lsaquo;</button>
+                    </li>
+                    @if (paginasVisibles.length > 0 && paginasVisibles[0] > 1) {
+                      <li class="page-item"><button class="page-link" type="button" (click)="cambiarPagina(1)">1</button></li>
+                      @if (paginasVisibles[0] > 2) {
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                      }
+                    }
+                    @for (p of paginasVisibles; track p) {
+                      <li class="page-item" [class.active]="p === paginaActual">
+                        <button class="page-link" type="button" (click)="cambiarPagina(p)">{{ p }}</button>
+                      </li>
+                    }
+                    @if (paginasVisibles.length > 0 && paginasVisibles[paginasVisibles.length - 1] < totalPaginas) {
+                      @if (paginasVisibles[paginasVisibles.length - 1] < totalPaginas - 1) {
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                      }
+                      <li class="page-item"><button class="page-link" type="button" (click)="cambiarPagina(totalPaginas)">{{ totalPaginas }}</button></li>
+                    }
+                    <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                      <button class="page-link" type="button" (click)="cambiarPagina(paginaActual + 1)" [disabled]="paginaActual === totalPaginas">&rsaquo;</button>
+                    </li>
+                    <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                      <button class="page-link" type="button" (click)="cambiarPagina(totalPaginas)" [disabled]="paginaActual === totalPaginas" title="Última">&raquo;</button>
+                    </li>
+                  </ul>
+                </nav>
+              }
+            </div>
+          }
+
+        } @else {
+          <!-- Estado vacío -->
+          <div class="empty-state text-center py-5">
+            <div class="empty-icon text-muted mb-3">
+              <i antIcon type="user" theme="outline" style="font-size: 3rem;"></i>
+            </div>
+            <h6 class="text-secondary mb-1">No se encontraron doctores</h6>
+            <p class="text-muted small mb-3">
+              @if (terminoBusqueda || filtroEstado) {
+                No hay resultados para la búsqueda actual.
+              } @else {
+                Aún no hay doctores registrados en el sistema.
+              }
+            </p>
+            @if (terminoBusqueda || filtroEstado) {
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limpiarFiltros()">
+                Limpiar filtros
+              </button>
+            }
+          </div>
+        }
+
+      }
+
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal Crear / Editar Doctor -->
+<app-modal-doctores
+  [visible]="modalAbierto"
+  [doctor]="doctorSeleccionado"
+  (guardado)="onDoctorGuardado()"
+  (cerrado)="cerrarModal()">
+</app-modal-doctores>
