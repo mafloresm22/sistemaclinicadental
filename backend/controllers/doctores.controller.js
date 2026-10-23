@@ -115,12 +115,12 @@ async function crearDoctor(req, res, next) {
     const tiposValidos = ['DNI', 'CE', 'Pasaporte'];
     const tipoFinal = tipoDocumento && tiposValidos.includes(tipoDocumento) ? tipoDocumento : 'DNI';
 
-    const nombreLimpio      = nombreDoctor.trim();
-    const apellidosLimpio   = apellidosDoctor.trim();
-    const documentoLimpio   = documentoDoctor.trim();
-    const celularLimpio     = celularDoctor    && celularDoctor.trim()    ? celularDoctor.trim()    : null;
-    const correoLimpio      = correoDoctor     && correoDoctor.trim()     ? correoDoctor.trim()     : null;
-    const colegiaturaLimpia = nroColegiatura  && nroColegiatura.trim()   ? nroColegiatura.trim()   : null;
+    const nombreLimpio = nombreDoctor.trim();
+    const apellidosLimpio = apellidosDoctor.trim();
+    const documentoLimpio = documentoDoctor.trim();
+    const celularLimpio = celularDoctor && celularDoctor.trim() ? celularDoctor.trim() : null;
+    const correoLimpio = correoDoctor && correoDoctor.trim() ? correoDoctor.trim() : null;
+    const colegiaturaLimpia = nroColegiatura && nroColegiatura.trim() ? nroColegiatura.trim() : null;
 
     if (nombreLimpio.length > 80) {
       return res.status(400).json({
@@ -217,7 +217,7 @@ async function crearDoctor(req, res, next) {
       const [rowsId] = await connection.query('SELECT @insertId AS insertId');
       const insertId = rowsId[0].insertId;
 
-      // 5. Asignar especialidades en tabla intermedia (si se proporcionaron)
+      // 5. Asignar especialidades en tabla intermedia
       if (especialidades && Array.isArray(especialidades) && especialidades.length > 0) {
         for (const idEsp of especialidades) {
           await connection.query('CALL sp_asignar_especialidad_doctor(?, ?)', [insertId, Number(idEsp)]);
@@ -269,6 +269,7 @@ async function actualizarDoctor(req, res, next) {
       nroColegiatura,
       celularDoctor,
       correoDoctor,
+      especialidades,
     } = req.body;
 
     // Verificar existencia
@@ -304,12 +305,12 @@ async function actualizarDoctor(req, res, next) {
     const tiposValidos = ['DNI', 'CE', 'Pasaporte'];
     const tipoFinal = tipoDocumento && tiposValidos.includes(tipoDocumento) ? tipoDocumento : 'DNI';
 
-    const nombreLimpio      = nombreDoctor.trim();
-    const apellidosLimpio   = apellidosDoctor.trim();
-    const documentoLimpio   = documentoDoctor.trim();
-    const celularLimpio     = celularDoctor   && celularDoctor.trim()   ? celularDoctor.trim()   : null;
-    const correoLimpio      = correoDoctor    && correoDoctor.trim()    ? correoDoctor.trim()    : null;
-    const colegiaturaLimpia = nroColegiatura  && nroColegiatura.trim()  ? nroColegiatura.trim()  : null;
+    const nombreLimpio = nombreDoctor.trim();
+    const apellidosLimpio = apellidosDoctor.trim();
+    const documentoLimpio = documentoDoctor.trim();
+    const celularLimpio = celularDoctor && celularDoctor.trim() ? celularDoctor.trim() : null;
+    const correoLimpio = correoDoctor && correoDoctor.trim() ? correoDoctor.trim() : null;
+    const colegiaturaLimpia = nroColegiatura && nroColegiatura.trim() ? nroColegiatura.trim() : null;
 
     if (nombreLimpio.length > 80) {
       return res.status(400).json({ success: false, mensaje: 'El nombre no puede superar los 80 caracteres.' });
@@ -351,6 +352,14 @@ async function actualizarDoctor(req, res, next) {
       [id, nombreLimpio, apellidosLimpio, tipoFinal, documentoLimpio, colegiaturaLimpia, celularLimpio, correoLimpio]
     );
 
+    // Sincronizar especialidades en tabla intermedia (si se proporcionaron)
+    if (especialidades !== undefined && Array.isArray(especialidades)) {
+      await pool.query('DELETE FROM Doctores_Especialidades WHERE doctorId = ?', [id]);
+      for (const idEsp of especialidades) {
+        await pool.query('CALL sp_asignar_especialidad_doctor(?, ?)', [id, Number(idEsp)]);
+      }
+    }
+
     return res.json({
       success: true,
       mensaje: 'Doctor actualizado con éxito',
@@ -363,6 +372,7 @@ async function actualizarDoctor(req, res, next) {
         nroColegiatura: colegiaturaLimpia,
         celularDoctor: celularLimpio,
         correoDoctor: correoLimpio,
+        especialidades: especialidades || [],
       },
     });
   } catch (err) {

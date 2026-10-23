@@ -1,10 +1,11 @@
-import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { SharedModule } from '../../../theme/shared/shared.module';
 import { DoctoresService, Doctor, DoctorPayload } from '../../../services/doctores.service';
+import { EspecialidadesService, Especialidad } from '../../../services/especialidades.service';
 import { IconService } from '@ant-design/icons-angular';
-import { EditOutline, UserAddOutline, InfoCircleOutline, CheckOutline, UserOutline } from '@ant-design/icons-angular/icons';
+import { EditOutline, UserAddOutline, InfoCircleOutline, CheckOutline, UserOutline, MedicineBoxOutline } from '@ant-design/icons-angular/icons';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -14,13 +15,14 @@ import Swal from 'sweetalert2';
   templateUrl: './modal-doctores.component.html',
   styleUrls: ['./modal-doctores.component.scss']
 })
-export class ModalDoctoresComponent implements OnChanges {
+export class ModalDoctoresComponent implements OnInit, OnChanges {
   private fb = inject(FormBuilder);
   private doctoresService = inject(DoctoresService);
+  private especialidadesService = inject(EspecialidadesService);
   private iconService = inject(IconService);
 
   constructor() {
-    this.iconService.addIcon(EditOutline, UserAddOutline, InfoCircleOutline, CheckOutline, UserOutline);
+    this.iconService.addIcon(EditOutline, UserAddOutline, InfoCircleOutline, CheckOutline, UserOutline, MedicineBoxOutline);
   }
 
   @Input() visible: boolean = false;
@@ -32,6 +34,10 @@ export class ModalDoctoresComponent implements OnChanges {
   guardando: boolean = false;
   modoEdicion: boolean = false;
 
+  listaEspecialidades: Especialidad[] = [];
+  cargandoEspecialidades: boolean = false;
+  especialidadesSeleccionadas: number[] = [];
+
   formDoctor: FormGroup = this.fb.group({
     nombreDoctor: ['', [Validators.required, Validators.maxLength(80)]],
     apellidosDoctor: ['', [Validators.required, Validators.maxLength(100)]],
@@ -39,15 +45,67 @@ export class ModalDoctoresComponent implements OnChanges {
     documentoDoctor: ['', [Validators.required, Validators.maxLength(20)]],
     nroColegiatura: ['', [Validators.maxLength(30)]],
     celularDoctor: ['', [Validators.maxLength(20)]],
-    correoDoctor: ['', [Validators.email, Validators.maxLength(100)]]
+    correoDoctor: ['', [Validators.email, Validators.maxLength(100)]],
+    especialidades: [[] as number[], [this.validarAlMenosUnaEspecialidad]]
   });
+
+  private validarAlMenosUnaEspecialidad(control: AbstractControl) {
+    const val = control.value;
+    return Array.isArray(val) && val.length > 0 ? null : { required: true };
+  }
 
   campo(nombre: string) {
     return this.formDoctor.get(nombre);
   }
 
+  ngOnInit(): void {
+    this.cargarEspecialidades();
+  }
+
+  cargarEspecialidades(): void {
+    if (this.listaEspecialidades.length > 0) return;
+    this.cargandoEspecialidades = true;
+    this.especialidadesService.listar().subscribe({
+      next: (resp) => {
+        this.listaEspecialidades = resp.datos || [];
+        this.cargandoEspecialidades = false;
+      },
+      error: () => {
+        this.cargandoEspecialidades = false;
+      }
+    });
+  }
+
+  isEspecialidadSeleccionada(id: number): boolean {
+    return this.especialidadesSeleccionadas.includes(id);
+  }
+
+  toggleEspecialidad(id: number): void {
+    const index = this.especialidadesSeleccionadas.indexOf(id);
+    if (index > -1) {
+      this.especialidadesSeleccionadas.splice(index, 1);
+    } else {
+      this.especialidadesSeleccionadas.push(id);
+    }
+    this.formDoctor.patchValue({ especialidades: [...this.especialidadesSeleccionadas] });
+    this.formDoctor.get('especialidades')?.markAsTouched();
+  }
+
+  seleccionarTodas(): void {
+    this.especialidadesSeleccionadas = this.listaEspecialidades.map((e) => e.idEspecialidad);
+    this.formDoctor.patchValue({ especialidades: [...this.especialidadesSeleccionadas] });
+    this.formDoctor.get('especialidades')?.markAsTouched();
+  }
+
+  deseleccionarTodas(): void {
+    this.especialidadesSeleccionadas = [];
+    this.formDoctor.patchValue({ especialidades: [] });
+    this.formDoctor.get('especialidades')?.markAsTouched();
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['visible'] && this.visible) {
+      this.cargarEspecialidades();
       this.inicializarFormulario();
     }
   }
@@ -55,6 +113,16 @@ export class ModalDoctoresComponent implements OnChanges {
   private inicializarFormulario(): void {
     if (this.doctor) {
       this.modoEdicion = true;
+      let ids: number[] = [];
+      if (this.doctor.idEspecialidades) {
+        ids = this.doctor.idEspecialidades
+          .toString()
+          .split(',')
+          .map((s) => Number(s.trim()))
+          .filter((n) => !isNaN(n) && n > 0);
+      }
+      this.especialidadesSeleccionadas = ids;
+
       this.formDoctor.reset({
         nombreDoctor: this.doctor.nombreDoctor,
         apellidosDoctor: this.doctor.apellidosDoctor,
@@ -62,10 +130,28 @@ export class ModalDoctoresComponent implements OnChanges {
         documentoDoctor: this.doctor.documentoDoctor,
         nroColegiatura: this.doctor.nroColegiatura || '',
         celularDoctor: this.doctor.celularDoctor || '',
-        correoDoctor: this.doctor.correoDoctor || ''
+        correoDoctor: this.doctor.correoDoctor || '',
+        especialidades: ids
       });
+
+      if (ids.length === 0 && this.doctor.idDoctor) {
+        this.doctoresService.obtenerPorId(this.doctor.idDoctor).subscribe({
+          next: (resp) => {
+            if (resp.datos?.idEspecialidades) {
+              const idsCargados = resp.datos.idEspecialidades
+                .toString()
+                .split(',')
+                .map((s) => Number(s.trim()))
+                .filter((n) => !isNaN(n) && n > 0);
+              this.especialidadesSeleccionadas = idsCargados;
+              this.formDoctor.patchValue({ especialidades: idsCargados });
+            }
+          }
+        });
+      }
     } else {
       this.modoEdicion = false;
+      this.especialidadesSeleccionadas = [];
       this.formDoctor.reset({
         nombreDoctor: '',
         apellidosDoctor: '',
@@ -73,12 +159,14 @@ export class ModalDoctoresComponent implements OnChanges {
         documentoDoctor: '',
         nroColegiatura: '',
         celularDoctor: '',
-        correoDoctor: ''
+        correoDoctor: '',
+        especialidades: []
       });
     }
   }
 
   cerrar(): void {
+    this.especialidadesSeleccionadas = [];
     this.formDoctor.reset();
     this.cerrado.emit();
   }
@@ -97,7 +185,8 @@ export class ModalDoctoresComponent implements OnChanges {
       documentoDoctor: val.documentoDoctor.trim(),
       nroColegiatura: val.nroColegiatura ? val.nroColegiatura.trim() : null,
       celularDoctor: val.celularDoctor ? val.celularDoctor.trim() : null,
-      correoDoctor: val.correoDoctor ? val.correoDoctor.trim() : null
+      correoDoctor: val.correoDoctor ? val.correoDoctor.trim() : null,
+      especialidades: this.especialidadesSeleccionadas
     };
 
     this.guardando = true;

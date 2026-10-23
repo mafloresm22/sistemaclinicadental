@@ -107,6 +107,84 @@
                     }
                 </div>
 
+                <!-- Sección: Especialidades Médicas (Checkboxes Profesionales) -->
+                <div class="mb-3">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <label class="form-label fw-semibold text-secondary small mb-0 d-flex align-items-center gap-1">
+                            <i antIcon type="medicine-box" theme="outline" class="text-primary"></i>
+                            <span>Especialidades Médicas</span>
+                            <span class="text-danger">*</span>
+                        </label>
+                        @if (listaEspecialidades.length > 0) {
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge rounded-pill px-2 py-1 small"
+                                [class.bg-primary-subtle]="especialidadesSeleccionadas.length > 0"
+                                [class.text-primary]="especialidadesSeleccionadas.length > 0"
+                                [class.bg-light]="especialidadesSeleccionadas.length === 0"
+                                [class.text-muted]="especialidadesSeleccionadas.length === 0"
+                                [class.border]="true">
+                                {{ especialidadesSeleccionadas.length }} de {{ listaEspecialidades.length }} seleccionada(s)
+                            </span>
+                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-primary small fw-semibold" (click)="seleccionarTodas()">
+                                Todas
+                            </button>
+                            <span class="text-muted small">|</span>
+                            <button type="button" class="btn btn-link btn-sm text-decoration-none p-0 text-secondary small" (click)="deseleccionarTodas()">
+                                Limpiar
+                            </button>
+                        </div>
+                        }
+                    </div>
+
+                    @if (cargandoEspecialidades) {
+                    <div class="p-3 text-center bg-light rounded-3 border">
+                        <span class="spinner-border spinner-border-sm text-primary me-2" role="status"></span>
+                        <span class="text-muted small">Cargando especialidades...</span>
+                    </div>
+                    } @else if (listaEspecialidades.length === 0) {
+                    <div class="p-3 bg-light rounded-3 border text-center text-muted small">
+                        <i antIcon type="info-circle" theme="outline" class="me-1"></i>
+                        No hay especialidades registradas en el sistema. Debes crear al menos una especialidad primero.
+                    </div>
+                    } @else {
+                    <div class="especialidades-grid-wrapper p-2 rounded-3 border"
+                        [class.border-danger]="campo('especialidades')?.invalid && campo('especialidades')?.touched">
+                        <div class="row g-2">
+                            @for (esp of listaEspecialidades; track esp.idEspecialidad) {
+                            <div class="col-12 col-sm-6">
+                                <label class="especialidad-card-checkbox"
+                                    [class.checked]="isEspecialidadSeleccionada(esp.idEspecialidad)">
+                                    <input type="checkbox"
+                                        class="visually-hidden"
+                                        [checked]="isEspecialidadSeleccionada(esp.idEspecialidad)"
+                                        (change)="toggleEspecialidad(esp.idEspecialidad)" />
+                                    <div class="checkbox-indicator">
+                                        <i antIcon type="check" theme="outline" class="indicator-icon"></i>
+                                    </div>
+                                    <div class="especialidad-card-body overflow-hidden">
+                                        <div class="especialidad-titulo text-truncate" [title]="esp.nombreEspecialidad">
+                                            {{ esp.nombreEspecialidad }}
+                                        </div>
+                                        @if (esp.descripcionEspecialidad) {
+                                        <div class="especialidad-subtitulo text-truncate" [title]="esp.descripcionEspecialidad">
+                                            {{ esp.descripcionEspecialidad }}
+                                        </div>
+                                        }
+                                    </div>
+                                </label>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    @if (campo('especialidades')?.invalid && campo('especialidades')?.touched) {
+                    <div class="text-danger small mt-1 fw-semibold d-flex align-items-center gap-1">
+                        <i antIcon type="info-circle" theme="outline"></i>
+                        <span>Debe seleccionar al menos una especialidad para el doctor.</span>
+                    </div>
+                    }
+                    }
+                </div>
+
                 <!-- Información de usuario y contraseña automáticos -->
                 @if (!modoEdicion) {
                 <div class="user-credentials-note mt-3 p-3 rounded-3">

@@ -19,7 +19,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 92%;
-  max-width: 620px;
+  max-width: 680px;
   max-height: 90vh;
   z-index: 1055;
   animation: modalSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
@@ -35,10 +35,19 @@
     display: flex;
     flex-direction: column;
     max-height: 90vh;
+
+    form {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
   }
 
   // Header
   .modal-header {
+    flex-shrink: 0;
     background: #ffffff;
     border-bottom: 1px solid #f1f5f9;
     padding: 1.1rem 1.5rem;
@@ -64,24 +73,34 @@
     }
   }
 
-  // Scroll en modal-body si la pantalla es muy pequeña
+  // Scroll vertical en modal-body para mantener los botones siempre visibles
   .modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 1.5rem;
     background: #ffffff;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 #f1f5f9;
 
-    /* Scrollbar sutil */
+    /* Barra desplazadora vertical visible y moderna */
     &::-webkit-scrollbar {
-      width: 6px;
+      width: 7px;
     }
 
     &::-webkit-scrollbar-track {
-      background: #f8fafc;
+      background: #f1f5f9;
+      border-radius: 4px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 3px;
+      background: #94a3b8;
+      border-radius: 4px;
+
+      &:hover {
+        background: #64748b;
+      }
     }
   }
 
@@ -140,6 +159,115 @@
     font-weight: 500;
   }
 
+  // Contenedor y cards de especialidades
+  .especialidades-grid-wrapper {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    max-height: 210px;
+    overflow-y: auto;
+    transition: all 0.2s ease;
+
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+
+      &:hover {
+        background: #94a3b8;
+      }
+    }
+  }
+
+  .especialidad-card-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.75rem;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.55rem;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    height: 100%;
+    margin-bottom: 0;
+
+    &:hover {
+      border-color: #93c5fd;
+      background: #f8fbff;
+      transform: translateY(-1px);
+    }
+
+    &.checked {
+      border-color: #2563eb;
+      background: #eff6ff;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
+
+      .checkbox-indicator {
+        background: #2563eb;
+        border-color: #2563eb;
+
+        .indicator-icon {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      .especialidad-titulo {
+        color: #1d4ed8;
+      }
+    }
+
+    .checkbox-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      border: 2px solid #cbd5e1;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.18s ease;
+
+      .indicator-icon {
+        color: #ffffff;
+        font-size: 11px;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+    }
+
+    .especialidad-card-body {
+      flex: 1;
+      min-width: 0;
+
+      .especialidad-titulo {
+        font-size: 0.825rem;
+        font-weight: 600;
+        color: #1e293b;
+        line-height: 1.25;
+        transition: color 0.15s ease;
+      }
+
+      .especialidad-subtitulo {
+        font-size: 0.72rem;
+        color: #64748b;
+        line-height: 1.2;
+        margin-top: 1px;
+      }
+    }
+  }
+
   // Tarjeta de credenciales automáticas
   .user-credentials-note {
     background: #f8fafc;
@@ -148,6 +276,7 @@
 
     ul {
       margin-top: 0.25rem;
+
       li {
         line-height: 1.4;
       }
@@ -171,8 +300,9 @@
     }
   }
 
-  // Footer
+  // Footer (Siempre visible abajo)
   .modal-footer {
+    flex-shrink: 0;
     border-top: 1px solid #f1f5f9;
     background: #f8fafc;
     padding: 0.9rem 1.5rem;
