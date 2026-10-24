@@ -1,0 +1,341 @@
+<div class="row">
+  <div class="col-12">
+    <app-card [showHeader]="false" blockClass="p-3 p-md-4">
+
+      <!-- ENCABEZADO Y MÉTRICAS -->
+      <div class="piezas-header mb-4">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-primary-subtle text-primary p-2 rounded-circle fs-5">
+                <i antIcon type="edit" theme="outline"></i>
+              </span>
+              <div>
+                <h4 class="page-title mb-0 fw-bold text-dark">Gestión y Edición de Piezas Dentales</h4>
+                <p class="text-muted mb-0 small">
+                  Catálogo administrativo de nomenclatura FDI. Modifica y personaliza los nombres clínicos de cada pieza dental.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Métricas estadísticas -->
+          <div class="stats-chips d-flex gap-2 flex-wrap align-items-center">
+            <span class="stat-chip stat-chip--total" title="Total de piezas en el catálogo FDI">
+              <span class="stat-chip__number">{{ totalPiezas }}</span>
+              <span class="stat-chip__label">Catálogo FDI</span>
+            </span>
+            <span class="stat-chip stat-chip--adult" title="Piezas permanentes de adulto">
+              <span class="stat-chip__number">{{ totalPermanentes }}</span>
+              <span class="stat-chip__label">Permanentes</span>
+            </span>
+            <span class="stat-chip stat-chip--kid" title="Piezas temporales o deciduas de niño">
+              <span class="stat-chip__number">{{ totalDeciduas }}</span>
+              <span class="stat-chip__label">Deciduas</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARRA DE FILTROS Y BÚSQUEDA -->
+      <div class="filter-panel p-3 rounded-4 mb-4 bg-light border">
+        <div class="row g-2 align-items-center">
+
+          <!-- Buscador por FDI o Nombre -->
+          <div class="col-12 col-md-4">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0 text-muted">
+                <i antIcon type="search" theme="outline"></i>
+              </span>
+              <input
+                type="text"
+                class="form-control border-start-0 ps-0"
+                placeholder="Buscar por código FDI o nombre..."
+                [(ngModel)]="terminoBusqueda"
+                (ngModelChange)="paginaActual = 1" />
+              <button
+                class="btn btn-outline-secondary"
+                *ngIf="terminoBusqueda"
+                (click)="terminoBusqueda = ''; paginaActual = 1"
+                title="Limpiar búsqueda">
+                <i antIcon type="close-circle" theme="outline"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Filtro: Dentición -->
+          <div class="col-6 col-md-2">
+            <select
+              class="form-select"
+              [(ngModel)]="filtroDenticion"
+              (ngModelChange)="paginaActual = 1">
+              <option value="">Todas las denticiones</option>
+              <option value="adulto">Adulto (Permanente)</option>
+              <option value="infantil">Infantil (Decidua)</option>
+            </select>
+          </div>
+
+          <!-- Filtro: Arcada -->
+          <div class="col-6 col-md-2">
+            <select
+              class="form-select"
+              [(ngModel)]="filtroArcada"
+              (ngModelChange)="paginaActual = 1">
+              <option value="">Todas las arcadas</option>
+              <option value="Superior">Arcada Superior</option>
+              <option value="Inferior">Arcada Inferior</option>
+            </select>
+          </div>
+
+          <!-- Filtro: Cuadrante -->
+          <div class="col-6 col-md-2">
+            <select
+              class="form-select"
+              [(ngModel)]="filtroCuadrante"
+              (ngModelChange)="paginaActual = 1">
+              <option value="">Todos los cuadrantes</option>
+              <option value="1">Q1: Superior Derecho</option>
+              <option value="2">Q2: Superior Izquierdo</option>
+              <option value="3">Q3: Inferior Izquierdo</option>
+              <option value="4">Q4: Inferior Derecho</option>
+              <option value="5">Q5: Deciduo Sup. Der.</option>
+              <option value="6">Q6: Deciduo Sup. Izq.</option>
+              <option value="7">Q7: Deciduo Inf. Izq.</option>
+              <option value="8">Q8: Deciduo Inf. Der.</option>
+            </select>
+          </div>
+
+          <!-- Filtro: Grupo Anatómico -->
+          <div class="col-6 col-md-2">
+            <select
+              class="form-select"
+              [(ngModel)]="filtroGrupo"
+              (ngModelChange)="paginaActual = 1">
+              <option value="">Todos los grupos</option>
+              <option value="Incisivo">Incisivos</option>
+              <option value="Canino">Caninos</option>
+              <option value="Premolar">Premolares</option>
+              <option value="Molar">Molares</option>
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Indicador de filtros aplicados y botón para limpiar -->
+        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top border-light-subtle flex-wrap gap-2">
+          <div class="small text-muted">
+            <span>Resultados encontrados: <strong>{{ totalRegistros }}</strong> piezas</span>
+            <span *ngIf="terminoBusqueda || filtroDenticion || filtroArcada || filtroCuadrante || filtroGrupo" class="ms-2">
+              (Filtros aplicados)
+            </span>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button
+              *ngIf="terminoBusqueda || filtroDenticion || filtroArcada || filtroCuadrante || filtroGrupo"
+              type="button"
+              class="btn btn-link btn-sm text-danger text-decoration-none p-0 d-flex align-items-center gap-1"
+              (click)="limpiarFiltros()">
+              <i antIcon type="close-circle" theme="outline"></i>
+              <span>Restablecer filtros</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1"
+              (click)="cargarPiezas()"
+              title="Recargar catálogo">
+              <i antIcon type="sync" theme="outline" [class.spin]="cargando"></i>
+              <span>Actualizar</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SPINNER DE CARGA -->
+      <div *ngIf="cargando" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando piezas dentales...</span>
+        </div>
+        <p class="text-muted mt-2 mb-0 small">Cargando listado de piezas dentales...</p>
+      </div>
+
+      <!-- TABLA DE EDICIÓN DE PIEZAS DENTALES -->
+      <div *ngIf="!cargando" class="table-responsive rounded-4 border shadow-sm">
+        <table class="table table-hover align-middle mb-0 custom-piezas-table">
+          <thead class="table-light">
+            <tr>
+              <th style="width: 70px;" class="text-center">Diente</th>
+              <th style="width: 100px;">Código FDI</th>
+              <th>Nombre de la Pieza Dental</th>
+              <th style="width: 130px;">Dentición</th>
+              <th style="width: 120px;">Arcada</th>
+              <th style="width: 100px;">Cuadrante</th>
+              <th style="width: 140px;">Grupo Anatómico</th>
+              <th style="width: 110px;" class="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (pieza of piezasPaginadas; track pieza.idPieza) {
+              <tr class="piezas-row">
+                <!-- Miniatura Dental -->
+                <td class="text-center">
+                  <div class="tooth-thumb-wrap mx-auto">
+                    <img [src]="getInfoClinica(pieza).imagen" [alt]="pieza.nombrePieza" class="tooth-thumb-img" />
+                  </div>
+                </td>
+
+                <!-- Código FDI -->
+                <td>
+                  <span class="badge tooth-badge" [ngClass]="getInfoClinica(pieza).badgeClass">
+                    #{{ pieza.idPieza }}
+                  </span>
+                </td>
+
+                <!-- Nombre de la pieza -->
+                <td>
+                  <div class="fw-bold text-dark fs-6">{{ pieza.nombrePieza }}</div>
+                  <small class="text-muted">{{ getInfoClinica(pieza).funcion }}</small>
+                </td>
+
+                <!-- Dentición -->
+                <td>
+                  @if (pieza.cuadrante <= 4) {
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2 py-1 small">
+                      Permanente
+                    </span>
+                  } @else {
+                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill px-2 py-1 small">
+                      Decidua (Niño)
+                    </span>
+                  }
+                </td>
+
+                <!-- Arcada -->
+                <td>
+                  <span
+                    class="badge rounded-pill px-2 py-1 small"
+                    [ngClass]="pieza.arcada === 'Superior' ? 'bg-info-subtle text-info-emphasis border border-info-subtle' : 'bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle'">
+                    {{ pieza.arcada }}
+                  </span>
+                </td>
+
+                <!-- Cuadrante -->
+                <td>
+                  <span class="badge bg-light text-dark border px-2 py-1 font-monospace">
+                    Q{{ pieza.cuadrante }}
+                  </span>
+                </td>
+
+                <!-- Grupo Anatómico -->
+                <td>
+                  <span class="fw-semibold small d-inline-flex align-items-center gap-1" [ngClass]="getInfoClinica(pieza).colorClass">
+                    <span class="group-dot" [ngClass]="getInfoClinica(pieza).badgeClass"></span>
+                    {{ getInfoClinica(pieza).tipo }}
+                  </span>
+                </td>
+
+                <!-- Acciones -->
+                <td class="text-center">
+                  <button
+                    type="button"
+                    class="btn btn-action-edit btn-sm rounded-pill px-3 d-inline-flex align-items-center gap-1 shadow-sm"
+                    (click)="abrirModalEditar(pieza)"
+                    title="Editar nombre de la pieza dental">
+                    <i antIcon type="edit" theme="outline"></i>
+                    <span>Editar</span>
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="8" class="text-center py-5">
+                  <div class="empty-state">
+                    <div class="text-muted mb-2">
+                      <i antIcon type="inbox" theme="outline" style="font-size: 2.5rem;"></i>
+                    </div>
+                    <h6 class="text-secondary mb-1">No se encontraron piezas dentales</h6>
+                    <p class="text-muted small mb-3">
+                      @if (terminoBusqueda || filtroDenticion || filtroArcada || filtroCuadrante || filtroGrupo) {
+                        No hay coincidencias con los filtros seleccionados.
+                      } @else {
+                        No hay piezas registradas en el catálogo.
+                      }
+                    </p>
+                    @if (terminoBusqueda || filtroDenticion || filtroArcada || filtroCuadrante || filtroGrupo) {
+                      <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3" (click)="limpiarFiltros()">
+                        Limpiar filtros
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER DE PAGINACIÓN -->
+      @if (totalRegistros > 0 && !cargando) {
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 mt-4 pt-2 border-top">
+          <!-- Selector de tamaño y conteo -->
+          <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-start gap-3 text-muted small">
+            <div class="d-flex align-items-center gap-2">
+              <span>Mostrar</span>
+              <select
+                class="form-select form-select-sm select-page-size"
+                [ngModel]="tamanioPagina"
+                (ngModelChange)="cambiarTamanioPagina($event)">
+                @for (tam of tamaniosPagina; track tam) {
+                  <option [value]="tam">{{ tam === 52 ? 'Todas (52)' : tam }}</option>
+                }
+              </select>
+              <span>piezas por página</span>
+            </div>
+            <span class="text-secondary">
+              Mostrando <strong>{{ indiceInicio }}</strong> a <strong>{{ indiceFin }}</strong> de <strong>{{ totalRegistros }}</strong> piezas
+            </span>
+          </div>
+
+          <!-- Botones de navegación -->
+          @if (totalPaginas > 1) {
+            <nav aria-label="Navegación de páginas">
+              <ul class="pagination pagination-sm mb-0 custom-pagination justify-content-center">
+                <li class="page-item" [class.disabled]="paginaActual === 1">
+                  <button class="page-link" (click)="paginaAnterior()" [disabled]="paginaActual === 1" aria-label="Anterior">
+                    &laquo; Anterior
+                  </button>
+                </li>
+                @for (pag of paginasVisibles; track $index) {
+                  @if (pag === '...') {
+                    <li class="page-item disabled">
+                      <span class="page-link">...</span>
+                    </li>
+                  } @else {
+                    <li class="page-item" [class.active]="paginaActual === pag">
+                      <button class="page-link" (click)="irAPagina(pag)">{{ pag }}</button>
+                    </li>
+                  }
+                }
+                <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                  <button class="page-link" (click)="paginaSiguiente()" [disabled]="paginaActual === totalPaginas" aria-label="Siguiente">
+                    Siguiente &raquo;
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          }
+        </div>
+      }
+
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal para editar el nombre de la pieza dental -->
+<app-modal-editar-pieza
+  [visible]="modalEdicionVisible"
+  [pieza]="piezaParaEditar"
+  (guardado)="onPiezaGuardada($event)"
+  (cerrado)="cerrarModalEdicion()">
+</app-modal-editar-pieza>

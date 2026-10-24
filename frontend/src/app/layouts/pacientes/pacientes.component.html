@@ -1,0 +1,273 @@
+<div class="row">
+  <div class="col-12">
+    <app-card [showHeader]="false" blockClass="p-4">
+
+      <!-- Fila superior: Búsqueda + Filtro Estado + Botón Nuevo -->
+      <div class="row align-items-center mb-4 g-3">
+
+        <!-- Búsqueda -->
+        <div class="col-12 col-md-5 col-lg-6">
+          <div class="search-box position-relative">
+            <i class="search-icon" antIcon type="search" theme="outline"></i>
+            <input
+              type="text"
+              class="form-control ps-5 py-2 search-input"
+              placeholder="Buscar por nombre, apellidos o documento (DNI)..."
+              [(ngModel)]="terminoBusqueda"
+              (keyup.enter)="onBuscar()"
+              (input)="onBuscar()"
+            />
+            @if (terminoBusqueda) {
+              <button
+                type="button"
+                class="btn-clear position-absolute"
+                (click)="limpiarBusqueda()"
+                title="Limpiar búsqueda">
+                <i antIcon type="close-circle" theme="outline"></i>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Filtro Estado -->
+        <div class="col-6 col-md-3 col-lg-3">
+          <select
+            class="form-select filter-select"
+            [(ngModel)]="filtroEstado"
+            (ngModelChange)="onBuscar()">
+            <option value="">Todos los estados</option>
+            <option value="Activo">Activo</option>
+            <option value="Inactivo">Inactivo</option>
+          </select>
+        </div>
+
+        <!-- Botón Nuevo Paciente -->
+        <div class="col-6 col-md-4 col-lg-3 text-end">
+          <button
+            type="button"
+            class="btn btn-primary d-inline-flex align-items-center justify-content-center gap-2 px-3 py-2 btn-nuevo shadow-sm w-100"
+            (click)="abrirModalCrear()">
+            <i antIcon type="plus" theme="outline"></i>
+            <span>Nuevo Paciente</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Estado de Carga -->
+      @if (cargando && pacientes.length === 0) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+          <p class="text-muted mt-2 mb-0 small">Cargando pacientes de la clínica...</p>
+        </div>
+      } @else {
+
+        <!-- Grid de Cards de Pacientes -->
+        @if (pacientesPaginados.length > 0) {
+          <div class="row g-3 cards-grid">
+            @for (p of pacientesPaginados; track p.idPaciente) {
+              <div class="col-12 col-sm-6 col-xl-4">
+                <div class="paciente-card" [class.inactivo]="p.estadoPaciente === 'Inactivo'">
+
+                  <!-- Header de la Card -->
+                  <div class="card-header-custom d-flex align-items-center gap-3">
+                    <!-- Avatar con iniciales -->
+                    <div class="avatar-circle" [class.femenino]="p.sexoPaciente === 'Femenino'">
+                      <span>{{ getIniciales(p) }}</span>
+                    </div>
+
+                    <!-- Nombre + Estado -->
+                    <div class="flex-grow-1 overflow-hidden">
+                      <p class="card-nombre mb-0 text-truncate" [title]="p.nombrePaciente + ' ' + p.apellidosPaciente">
+                        {{ p.nombrePaciente }} {{ p.apellidosPaciente }}
+                      </p>
+                      <div class="d-flex align-items-center gap-2 mt-1">
+                        <span class="badge-estado" [class.activo]="p.estadoPaciente === 'Activo'" [class.inactivo]="p.estadoPaciente === 'Inactivo'">
+                          <span class="dot"></span>
+                          {{ p.estadoPaciente }}
+                        </span>
+                        @if (calcularEdad(p.fechaNacimientoPaciente) !== null) {
+                          <span class="badge-edad">
+                            {{ calcularEdad(p.fechaNacimientoPaciente) }} años
+                          </span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Cuerpo de la Card -->
+                  <div class="card-body-custom">
+                    <!-- Documento -->
+                    <div class="info-row">
+                      <i antIcon type="idcard" theme="outline" class="info-icon"></i>
+                      <span class="info-label">{{ p.tipoDocumento }}:</span>
+                      <span class="info-value fw-semibold">{{ p.documentoPaciente }}</span>
+                    </div>
+
+                    <!-- Teléfono / Celular -->
+                    @if (p.celularPaciente) {
+                      <div class="info-row">
+                        <i antIcon type="phone" theme="outline" class="info-icon"></i>
+                        <span class="info-label">Celular:</span>
+                        <a [href]="'tel:' + p.celularPaciente" class="info-value text-decoration-none">
+                          {{ p.celularPaciente }}
+                        </a>
+                      </div>
+                    }
+
+                    <!-- Correo -->
+                    @if (p.correoPaciente) {
+                      <div class="info-row">
+                        <i antIcon type="mail" theme="outline" class="info-icon"></i>
+                        <span class="info-label">Correo:</span>
+                        <span class="info-value text-truncate" [title]="p.correoPaciente">{{ p.correoPaciente }}</span>
+                      </div>
+                    }
+
+                    <!-- Apoderado si tiene -->
+                    @if (p.apoderadoNombre) {
+                      <div class="info-row apoderado-badge-row">
+                        <i antIcon type="alert" theme="outline" class="info-icon text-warning"></i>
+                        <span class="info-label">Tutor/Apoderado:</span>
+                        <span class="info-value text-truncate fw-medium text-dark" [title]="p.apoderadoNombre">
+                          {{ p.apoderadoNombre }}
+                        </span>
+                      </div>
+                    }
+
+                    <!-- Antecedentes Médicos Badge -->
+                    <div class="info-row mt-2 pt-2 border-top">
+                      <i antIcon type="medicine-box" theme="outline" class="info-icon text-primary"></i>
+                      <span class="info-label">Antecedentes:</span>
+                      @if ((p.totalAntecedentes || 0) > 0) {
+                        <span class="badge bg-danger-subtle text-danger fw-semibold">
+                          {{ p.totalAntecedentes }} condición(es) registrada(s)
+                        </span>
+                      } @else {
+                        <span class="text-muted small">Sin antecedentes registrados</span>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Footer con Acciones -->
+                  <div class="card-footer-custom d-flex justify-content-between align-items-center">
+                    <!-- Toggle Activar / Desactivar -->
+                    <button
+                      type="button"
+                      class="btn-action"
+                      [class.btn-activar]="p.estadoPaciente === 'Inactivo'"
+                      [class.btn-desactivar]="p.estadoPaciente === 'Activo'"
+                      (click)="toggleEstado(p)"
+                      [title]="p.estadoPaciente === 'Activo' ? 'Inactivar paciente' : 'Activar paciente'">
+                      <i antIcon [type]="p.estadoPaciente === 'Activo' ? 'stop' : 'check-circle'" theme="outline"></i>
+                      <span>{{ p.estadoPaciente === 'Activo' ? 'Inactivar' : 'Activar' }}</span>
+                    </button>
+
+                    <div class="d-flex gap-2">
+                      <!-- Editar / Ficha -->
+                      <button
+                        type="button"
+                        class="btn-action btn-editar"
+                        (click)="abrirModalEditar(p)"
+                        title="Ver ficha o editar paciente">
+                        <i antIcon type="edit" theme="outline"></i>
+                        <span>Editar</span>
+                      </button>
+
+                      <!-- Eliminar -->
+                      <button
+                        type="button"
+                        class="btn-action btn-eliminar"
+                        (click)="eliminarPaciente(p)"
+                        title="Dar de baja paciente">
+                        <i antIcon type="delete" theme="outline"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Paginación Moderna -->
+          <div class="pagination-container mt-4 pt-3 border-top d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <!-- Selector tamaño página y conteo -->
+            <div class="d-flex align-items-center gap-3">
+              <span class="text-muted small">
+                Mostrando <strong>{{ indiceInicio }}</strong> a <strong>{{ indiceFin }}</strong> de <strong>{{ totalRegistros }}</strong> pacientes
+              </span>
+              <div class="d-flex align-items-center gap-1">
+                <span class="text-muted small">Por pág:</span>
+                <select
+                  class="form-select form-select-sm page-size-select"
+                  [ngModel]="tamanioPagina"
+                  (ngModelChange)="cambiarTamanioPagina($event)">
+                  @for (t of tamaniosPagina; track t) {
+                    <option [value]="t">{{ t }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <!-- Botones de página -->
+            <ul class="pagination pagination-sm mb-0">
+              <li class="page-item" [class.disabled]="paginaActual === 1">
+                <button class="page-link" (click)="irAPagina(paginaActual - 1)" aria-label="Anterior">
+                  ‹
+                </button>
+              </li>
+
+              @for (pag of paginasVisibles; track pag) {
+                <li class="page-item" [class.active]="pag === paginaActual">
+                  <button class="page-link" (click)="irAPagina(pag)">{{ pag }}</button>
+                </li>
+              }
+
+              <li class="page-item" [class.disabled]="paginaActual === totalPaginas">
+                <button class="page-link" (click)="irAPagina(paginaActual + 1)" aria-label="Siguiente">
+                  ›
+                </button>
+              </li>
+            </ul>
+          </div>
+
+        } @else {
+          <!-- Estado Vacío -->
+          <div class="text-center py-5 empty-state">
+            <div class="empty-icon-box mb-3">
+              <i antIcon type="user" theme="outline"></i>
+            </div>
+            <h5 class="fw-bold mb-1">No se encontraron pacientes</h5>
+            <p class="text-muted small mb-3">
+              @if (terminoBusqueda || filtroEstado) {
+                No hay resultados que coincidan con los filtros aplicados.
+              } @else {
+                Aún no hay pacientes registrados en la clínica.
+              }
+            </p>
+            @if (terminoBusqueda || filtroEstado) {
+              <button type="button" class="btn btn-outline-secondary btn-sm" (click)="limpiarBusqueda()">
+                Limpiar filtros
+              </button>
+            } @else {
+              <button type="button" class="btn btn-primary btn-sm" (click)="abrirModalCrear()">
+                <i antIcon type="plus" theme="outline" class="me-1"></i> Registrar Primer Paciente
+              </button>
+            }
+          </div>
+        }
+      }
+
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal para Crear / Editar Pacientes con Antecedentes -->
+<app-modal-pacientes
+  [visible]="modalAbierto"
+  [paciente]="pacienteSeleccionado"
+  (guardado)="onPacienteGuardado()"
+  (cerrado)="cerrarModal()">
+</app-modal-pacientes>

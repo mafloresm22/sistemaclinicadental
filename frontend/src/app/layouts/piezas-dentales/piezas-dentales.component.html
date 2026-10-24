@@ -52,11 +52,6 @@
             (click)="vistaActual = 'cuadrantes'">
             <i antIcon type="appstore" theme="outline" class="me-1"></i> Cuadrantes FDI
           </button>
-          <button type="button" class="btn btn-sm rounded-pill px-3" [class.btn-primary]="vistaActual === 'tabla'"
-            [class.btn-outline-secondary]="vistaActual !== 'tabla'" [class.border-0]="vistaActual !== 'tabla'"
-            (click)="vistaActual = 'tabla'">
-            <i antIcon type="table" theme="outline" class="me-1"></i> Catálogo Tabular
-          </button>
         </div>
 
         <!-- Selector de Dentición (Adulto / Niño) -->
@@ -130,9 +125,8 @@
         <p class="text-muted mt-2 mb-0 small">Cargando cavidad bucal y registros FDI...</p>
       </div>
 
-      <!-- ========================================== -->
       <!-- VISTA 1: BOCA ANATÓMICA / ODONTOGRAMA      -->
-      <!-- ========================================== -->
+
       <div *ngIf="!cargando && vistaActual === 'boca'">
         <div class="row g-4">
 
@@ -337,12 +331,6 @@
                   <span class="fdi-number-pill">
                     FDI #{{ piezaSeleccionada.idPieza }}
                   </span>
-                  <button type="button"
-                    class="btn btn-sm btn-light rounded-pill px-3 shadow-sm d-flex align-items-center gap-1"
-                    (click)="abrirEdicion(piezaSeleccionada, $event)">
-                    <i antIcon type="edit" theme="outline"></i>
-                    <span>Editar</span>
-                  </button>
                 </div>
                 <h4 class="sheet-title fw-bold text-white mb-1">
                   {{ piezaSeleccionada.nombrePieza }}
@@ -434,9 +422,8 @@
         </div>
       </div>
 
-      <!-- ========================================== -->
       <!-- VISTA 2: CUADRANTES FDI                    -->
-      <!-- ========================================== -->
+
       <div *ngIf="!cargando && vistaActual === 'cuadrantes'">
         <div class="row g-4">
 
@@ -541,116 +528,6 @@
         </div>
       </div>
 
-      <!-- ========================================== -->
-      <!-- VISTA 3: CATÁLOGO TABULAR / LISTADO       -->
-      <!-- ========================================== -->
-      <div *ngIf="!cargando && vistaActual === 'tabla'">
-
-        <!-- Filtros de búsqueda en la tabla -->
-        <div class="row g-3 mb-3">
-          <div class="col-12 col-md-5">
-            <div class="input-group">
-              <span class="input-group-text bg-white border-end-0">
-                <i antIcon type="search" theme="outline"></i>
-              </span>
-              <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por FDI o nombre..."
-                [(ngModel)]="terminoBusqueda" />
-              <button class="btn btn-outline-secondary" *ngIf="terminoBusqueda" (click)="limpiarBusqueda()">
-                <i antIcon type="close-circle" theme="outline"></i>
-              </button>
-            </div>
-          </div>
-
-          <div class="col-6 col-md-3">
-            <select class="form-select" [(ngModel)]="filtroArcada">
-              <option value="">Todas las arcadas</option>
-              <option value="Superior">Arcada Superior</option>
-              <option value="Inferior">Arcada Inferior</option>
-            </select>
-          </div>
-
-          <div class="col-6 col-md-4">
-            <select class="form-select" [(ngModel)]="filtroCuadrante">
-              <option value="">Todos los cuadrantes</option>
-              <option value="1">Cuadrante 1 (Sup. Der.)</option>
-              <option value="2">Cuadrante 2 (Sup. Izq.)</option>
-              <option value="3">Cuadrante 3 (Inf. Izq.)</option>
-              <option value="4">Cuadrante 4 (Inf. Der.)</option>
-              <option value="5">Cuadrante 5 (Deciduo Sup. Der.)</option>
-              <option value="6">Cuadrante 6 (Deciduo Sup. Izq.)</option>
-              <option value="7">Cuadrante 7 (Deciduo Inf. Izq.)</option>
-              <option value="8">Cuadrante 8 (Deciduo Inf. Der.)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="table-responsive rounded-4 border shadow-sm">
-          <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th style="width: 80px;" class="text-center">Diente</th>
-                <th style="width: 100px;">Código FDI</th>
-                <th>Nombre de la Pieza Dental</th>
-                <th style="width: 130px;">Arcada</th>
-                <th style="width: 120px;">Cuadrante</th>
-                <th style="width: 140px;">Grupo Anatómico</th>
-                <th style="width: 110px;" class="text-end">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (pieza of piezasFiltradas; track pieza.idPieza) {
-              <tr [class.table-active]="piezaSeleccionada?.idPieza === pieza.idPieza">
-                <td class="text-center">
-                  <img [src]="getInfoClinica(pieza).imagen" style="width: 32px; height: 48px; object-fit: contain;" />
-                </td>
-                <td>
-                  <span class="badge" [ngClass]="getInfoClinica(pieza).badgeClass">
-                    #{{ pieza.idPieza }}
-                  </span>
-                </td>
-                <td>
-                  <div class="fw-semibold text-dark">{{ pieza.nombrePieza }}</div>
-                  <small class="text-muted">{{ getInfoClinica(pieza).funcion }}</small>
-                </td>
-                <td>
-                  <span class="badge"
-                    [ngClass]="pieza.arcada === 'Superior' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info'">
-                    {{ pieza.arcada }}
-                  </span>
-                </td>
-                <td>
-                  <span class="badge bg-light text-dark border">Q{{ pieza.cuadrante }}</span>
-                </td>
-                <td>
-                  <span class="fw-medium" [ngClass]="getInfoClinica(pieza).colorClass">
-                    {{ getInfoClinica(pieza).tipo }}
-                  </span>
-                </td>
-                <td class="text-end">
-                  <button type="button" class="btn btn-sm btn-outline-primary rounded-circle"
-                    title="Editar nombre de la pieza" (click)="abrirEdicion(pieza, $event)">
-                    <i antIcon type="edit" theme="outline"></i>
-                  </button>
-                </td>
-              </tr>
-              } @empty {
-              <tr>
-                <td colspan="7" class="text-center py-4 text-muted">
-                  No se encontraron piezas dentales con los criterios seleccionados.
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-      </div>
-
     </app-card>
   </div>
 </div>
-
-<!-- Modal para editar el nombre de la pieza dental -->
-<app-modal-editar-pieza [visible]="modalEdicionVisible" [pieza]="piezaParaEditar" (guardado)="onPiezaGuardada($event)"
-  (cerrado)="cerrarModalEdicion()">
-</app-modal-editar-pieza>

@@ -3,20 +3,14 @@
 const { pool } = require('../config/db');
 
 /**
- * Listar todas las piezas dentales con filtros opcionales
+ * Listar todas las piezas dentales con filtros opcionales usando SP
  */
 async function listarPiezasDentales(req, res, next) {
   try {
     const { arcada, cuadrante, busqueda, q } = req.query;
     const termino = (busqueda || q || '').trim();
 
-    let sql = `
-      SELECT idPieza, nombrePieza, cuadrante, arcada
-      FROM piezas_dentales
-      WHERE 1 = 1
-    `;
-    const params = [];
-
+    let arcadaParam = null;
     if (arcada) {
       const arcadasValidas = ['Superior', 'Inferior'];
       if (!arcadasValidas.includes(arcada)) {
@@ -25,10 +19,10 @@ async function listarPiezasDentales(req, res, next) {
           mensaje: `El valor de arcada debe ser uno de: ${arcadasValidas.join(', ')}.`,
         });
       }
-      sql += ' AND arcada = ?';
-      params.push(arcada);
+      arcadaParam = arcada;
     }
 
+    let cuadranteParam = null;
     if (cuadrante !== undefined && cuadrante !== '') {
       const cuadranteNum = Number(cuadrante);
       if (!Number.isInteger(cuadranteNum) || cuadranteNum < 1 || cuadranteNum > 8) {
@@ -37,18 +31,16 @@ async function listarPiezasDentales(req, res, next) {
           mensaje: 'El cuadrante debe ser un entero entre 1 y 8.',
         });
       }
-      sql += ' AND cuadrante = ?';
-      params.push(cuadranteNum);
+      cuadranteParam = cuadranteNum;
     }
 
-    if (termino) {
-      sql += ' AND (nombrePieza LIKE ? OR idPieza LIKE ?)';
-      params.push(`%${termino}%`, `%${termino}%`);
-    }
+    const [result] = await pool.query('CALL sp_listar_piezas_dentales(?, ?, ?)', [
+      arcadaParam,
+      cuadranteParam,
+      termino,
+    ]);
 
-    sql += ' ORDER BY idPieza ASC';
-
-    const [rows] = await pool.query(sql, params);
+    const rows = result[0];
 
     return res.json({
       success: true,
@@ -62,7 +54,7 @@ async function listarPiezasDentales(req, res, next) {
 }
 
 /**
- * Obtener una pieza dental por su ID (código FDI)
+ * Obtener una pieza dental por su ID (código FDI) usando SP
  */
 async function obtenerPiezaDentalPorId(req, res, next) {
   try {
@@ -75,10 +67,8 @@ async function obtenerPiezaDentalPorId(req, res, next) {
       });
     }
 
-    const [rows] = await pool.query(
-      'SELECT idPieza, nombrePieza, cuadrante, arcada FROM piezas_dentales WHERE idPieza = ?',
-      [id]
-    );
+    const [result] = await pool.query('CALL sp_obtener_pieza_dental_por_id(?)', [id]);
+    const rows = result[0];
 
     if (rows.length === 0) {
       return res.status(404).json({
@@ -98,7 +88,7 @@ async function obtenerPiezaDentalPorId(req, res, next) {
 }
 
 /**
- * Actualizar el nombre de una pieza dental por su ID (código FDI)
+ * Actualizar el nombre de una pieza dental por su ID (código FDI) usando SP
  */
 async function actualizarPiezaDental(req, res, next) {
   try {
@@ -111,7 +101,7 @@ async function actualizarPiezaDental(req, res, next) {
       });
     }
 
-    const { nombrePieza } = req.body;
+    const { nombrePieza, cuadrante, arcada } = req.body;
 
     if (!nombrePieza || !nombrePieza.trim()) {
       return res.status(400).json({
@@ -129,11 +119,9 @@ async function actualizarPiezaDental(req, res, next) {
       });
     }
 
-    // Verificar que existe
-    const [existe] = await pool.query(
-      'SELECT idPieza FROM piezas_dentales WHERE idPieza = ?',
-      [id]
-    );
+    // Verificar que existe la pieza
+    const [resultCheck] = await pool.query('CALL sp_obtener_pieza_dental_por_id(?)', [id]);
+    const existe = resultCheck[0];
 
     if (existe.length === 0) {
       return res.status(404).json({
@@ -142,15 +130,22 @@ async function actualizarPiezaDental(req, res, next) {
       });
     }
 
-    await pool.query(
-      'UPDATE piezas_dentales SET nombrePieza = ? WHERE idPieza = ?',
-      [nombreLimpio, id]
-    );
+    // Usamos los valores actuales si no se envían en el body
+    const piezaActual = existe[0];
+    const nuevoCuadrante = cuadrante !== undefined ? Number(cuadrante) : piezaActual.cuadrante;
+    const nuevaArcada = arcada || piezaActual.arcada;
 
-    const [updated] = await pool.query(
-      'SELECT idPieza, nombrePieza, cuadrante, arcada FROM piezas_dentales WHERE idPieza = ?',
-      [id]
-    );
+    // Ejecutar la actualización mediante SP pasando todos los campos requeridos
+    await pool.query('CALL sp_actualizar_pieza_dental(?, ?, ?, ?)', [
+      id,
+      nombreLimpio,
+      nuevoCuadrante,
+      nuevaArcada
+    ]);
+
+    // Consultar el registro actualizado para retornarlo
+    const [resultUpdated] = await pool.query('CALL sp_obtener_pieza_dental_por_id(?)', [id]);
+    const updated = resultUpdated[0];
 
     return res.json({
       success: true,

@@ -1,0 +1,355 @@
+@if (visible) {
+<div class="modal-backdrop-custom" (click)="cerrar()"></div>
+<div class="modal-dialog-custom modal-dialog-scrollable">
+  <div class="modal-content-custom">
+
+    <!-- HEADER -->
+    <div class="modal-header-custom">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-avatar" [class.edit]="modoEdicion">
+          <i antIcon [type]="modoEdicion ? 'edit' : 'user-add'" theme="outline"></i>
+        </div>
+        <div>
+          <h5 class="modal-title mb-0">
+            {{ modoEdicion ? 'Editar Paciente' : 'Registrar Nuevo Paciente' }}
+          </h5>
+          <small class="text-muted">
+            {{ modoEdicion ? 'Actualice la información y anamnesis del paciente' : 'Complete los datos personales y
+            antecedentes clínicos' }}
+          </small>
+        </div>
+      </div>
+      <button type="button" class="btn-close-custom" (click)="cerrar()" aria-label="Cerrar">
+        <i antIcon type="close" theme="outline"></i>
+      </button>
+    </div>
+
+    <!-- TABS NAVEGACIÓN -->
+    <div class="modal-tabs-header">
+      <button type="button" class="tab-btn" [class.active]="tabActiva === 'datos'" (click)="tabActiva = 'datos'">
+        <i antIcon type="user" theme="outline" class="me-1"></i>
+        Datos Personales
+      </button>
+      <button type="button" class="tab-btn" [class.active]="tabActiva === 'antecedentes'"
+        (click)="tabActiva = 'antecedentes'">
+        <i antIcon type="medicine-box" theme="outline" class="me-1"></i>
+        Antecedentes Clínicos
+        <span class="badge-count" *ngIf="listaAntecedentes.length > 0">
+          {{ listaAntecedentes.length }}
+        </span>
+      </button>
+    </div>
+
+    <!-- BODY CON FORMULARIO -->
+    <div class="modal-body-custom">
+
+      <!-- PESTAÑA 1: DATOS PERSONALES -->
+      <div [hidden]="tabActiva !== 'datos'">
+        <form [formGroup]="formPaciente">
+          <div class="row g-3">
+
+            <!-- Documento y Tipo -->
+            <div class="col-12 col-md-4">
+              <label class="form-label required">Tipo Documento</label>
+              <select class="form-select custom-input" formControlName="tipoDocumento">
+                @for (tipo of tiposDocumento; track tipo) {
+                <option [value]="tipo">{{ tipo }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-12 col-md-8">
+              <label class="form-label required">Número de Documento</label>
+              <input type="text" class="form-control custom-input" placeholder="Ingrese el número de documento"
+                formControlName="documentoPaciente"
+                [class.is-invalid]="campo('documentoPaciente')?.invalid && campo('documentoPaciente')?.touched" />
+              @if (campo('documentoPaciente')?.hasError('required') && campo('documentoPaciente')?.touched) {
+              <div class="invalid-feedback">El número de documento es requerido.</div>
+              }
+            </div>
+
+            <!-- Nombres y Apellidos -->
+            <div class="col-12 col-md-6">
+              <label class="form-label required">Nombres</label>
+              <input type="text" class="form-control custom-input" placeholder="Nombres completos"
+                formControlName="nombrePaciente"
+                [class.is-invalid]="campo('nombrePaciente')?.invalid && campo('nombrePaciente')?.touched" />
+              @if (campo('nombrePaciente')?.hasError('required') && campo('nombrePaciente')?.touched) {
+              <div class="invalid-feedback">El nombre es obligatorio.</div>
+              }
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label required">Apellidos</label>
+              <input type="text" class="form-control custom-input" placeholder="Apellidos completos"
+                formControlName="apellidosPaciente"
+                [class.is-invalid]="campo('apellidosPaciente')?.invalid && campo('apellidosPaciente')?.touched" />
+              @if (campo('apellidosPaciente')?.hasError('required') && campo('apellidosPaciente')?.touched) {
+              <div class="invalid-feedback">Los apellidos son obligatorios.</div>
+              }
+            </div>
+
+            <!-- Fecha Nacimiento, Sexo y Edad -->
+            <div class="col-12 col-md-6">
+              <label class="form-label">Fecha de Nacimiento</label>
+              <div class="input-group">
+                <input type="date" class="form-control custom-input" formControlName="fechaNacimientoPaciente" />
+              </div>
+              @if (edadCalculada !== null) {
+              <div class="form-text text-primary fw-medium mt-1">
+                <i antIcon type="info-circle" theme="outline" class="me-1"></i>
+                Edad: <strong>{{ edadCalculada }} años</strong>
+                <span *ngIf="esMenorDeEdad" class="badge bg-warning text-dark ms-2">Menor de edad</span>
+              </div>
+              }
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label">Sexo</label>
+              <select class="form-select custom-input" formControlName="sexoPaciente">
+                @for (s of sexos; track s) {
+                <option [value]="s">{{ s }}</option>
+                }
+              </select>
+            </div>
+
+            <!-- SECCIÓN CONDICIONAL: APODERADO SI ES MENOR DE EDAD -->
+            @if (esMenorDeEdad) {
+            <div class="col-12 apoderado-card mt-3">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="badge bg-warning text-dark p-2">
+                  <i antIcon type="alert" theme="outline"></i>
+                </span>
+                <div>
+                  <h6 class="mb-0 fw-bold text-warning-emphasis">Asignar Apoderado (Tutor Legal)</h6>
+                  <small class="text-muted">Al ser menor de edad, se requiere un adulto responsable registrado en la
+                    clínica.</small>
+                </div>
+              </div>
+
+              <div class="position-relative mt-2">
+                <div class="input-group">
+                  <span class="input-group-text bg-white border-end-0">
+                    <i antIcon type="search" theme="outline"></i>
+                  </span>
+                  <input type="text" class="form-control border-start-0"
+                    placeholder="Escriba DNI o apellido del apoderado para buscar..." [(ngModel)]="busquedaApoderado"
+                    [ngModelOptions]="{standalone: true}" (input)="buscarApoderados()" />
+                  @if (apoderadoSeleccionado) {
+                  <button type="button" class="btn btn-outline-danger" (click)="limpiarApoderado()">
+                    <i antIcon type="close" theme="outline"></i> Quitar
+                  </button>
+                  }
+                </div>
+
+                <!-- Spinner de búsqueda de apoderado -->
+                @if (buscandoApoderados) {
+                <div class="small text-muted mt-1">
+                  <span class="spinner-border spinner-border-sm me-1"></span> Buscando apoderados en la base de datos...
+                </div>
+                }
+
+                <!-- Lista desplegable de sugerencias -->
+                @if (apoderadosSugeridos.length > 0) {
+                <ul class="list-group position-absolute w-100 shadow-lg mt-1 apoderados-dropdown">
+                  @for (ap of apoderadosSugeridos; track ap.idPaciente) {
+                  <li
+                    class="list-group-item list-group-item-action d-flex justify-content-between align-items-center cursor-pointer py-2"
+                    (click)="seleccionarApoderado(ap)">
+                    <div>
+                      <strong class="d-block">{{ ap.nombrePaciente }} {{ ap.apellidosPaciente }}</strong>
+                      <small class="text-muted">{{ ap.tipoDocumento }}: {{ ap.documentoPaciente }} | Cel: {{
+                        ap.celularPaciente || 'Sin celular' }}</small>
+                    </div>
+                    <span class="badge bg-primary">Seleccionar</span>
+                  </li>
+                  }
+                </ul>
+                }
+
+                @if (apoderadoSeleccionado) {
+                <div class="alert alert-success mt-2 py-2 px-3 mb-0 d-flex align-items-center">
+                  <i antIcon type="check" theme="outline" class="me-2 text-success"></i>
+                  <span>Apoderado asignado: <strong>{{ busquedaApoderado }}</strong></span>
+                </div>
+                }
+              </div>
+            </div>
+            }
+
+            <!-- Celular y Correo -->
+            <div class="col-12 col-md-6">
+              <label class="form-label">Teléfono / Celular</label>
+              <div class="input-group">
+                <span class="input-group-text"><i antIcon type="phone" theme="outline"></i></span>
+                <input type="text" class="form-control custom-input" placeholder="999888777"
+                  formControlName="celularPaciente" />
+              </div>
+            </div>
+
+            <div class="col-12 col-md-6">
+              <label class="form-label">Correo Electrónico</label>
+              <div class="input-group">
+                <span class="input-group-text"><i antIcon type="mail" theme="outline"></i></span>
+                <input type="email" class="form-control custom-input" placeholder="correo@ejemplo.com"
+                  formControlName="correoPaciente"
+                  [class.is-invalid]="campo('correoPaciente')?.invalid && campo('correoPaciente')?.touched" />
+              </div>
+              @if (campo('correoPaciente')?.hasError('email') && campo('correoPaciente')?.touched) {
+              <div class="invalid-feedback d-block">Ingrese un correo electrónico válido.</div>
+              }
+            </div>
+
+            <!-- Dirección -->
+            <div class="col-12">
+              <label class="form-label">Dirección Domiciliaria</label>
+              <div class="input-group">
+                <span class="input-group-text"><i antIcon type="home" theme="outline"></i></span>
+                <input type="text" class="form-control custom-input" placeholder="Av. / Calle / Nro / Urbanización"
+                  formControlName="direccionPaciente" />
+              </div>
+            </div>
+
+            <!-- Contacto de Emergencia -->
+            <div class="col-12 mt-3">
+              <h6 class="text-uppercase text-muted fw-bold small border-bottom pb-2">
+                Contacto de Emergencia
+              </h6>
+            </div>
+
+            <div class="col-12 col-md-7">
+              <label class="form-label">Nombre del Contacto</label>
+              <input type="text" class="form-control custom-input"
+                placeholder="Nombre de familiar o persona de contacto" formControlName="contactoEmergenciaNombre" />
+            </div>
+
+            <div class="col-12 col-md-5">
+              <label class="form-label">Celular de Emergencia</label>
+              <input type="text" class="form-control custom-input" placeholder="Número de celular"
+                formControlName="contactoEmergenciaCelular" />
+            </div>
+
+          </div>
+        </form>
+      </div>
+
+      <!-- PESTAÑA 2: ANTECEDENTES CLÍNICOS -->
+      <div [hidden]="tabActiva !== 'antecedentes'">
+        <div class="antecedentes-container">
+          <div class="p-3 bg-light rounded-3 border mb-3">
+            <h6 class="fw-bold mb-2 text-primary d-flex align-items-center gap-2">
+              <i antIcon type="medicine-box" theme="outline"></i>
+              Agregar Antecedente Médico / Anamnesis
+            </h6>
+            <p class="text-muted small mb-3">
+              Registre alergias, enfermedades crónicas (diabetes, hipertensión), medicamentos en uso habitual o cirugías
+              previas.
+            </p>
+
+            <div class="row g-2 align-items-end">
+              <div class="col-12 col-md-4">
+                <label class="form-label small fw-semibold">Tipo</label>
+                <select class="form-select custom-input" [(ngModel)]="nuevoTipoAntecedente">
+                  @for (tipo of tiposAntecedente; track tipo) {
+                  <option [value]="tipo">{{ tipo }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small fw-semibold">Descripción o Detalle</label>
+                <input type="text" class="form-control custom-input"
+                  placeholder="Ej: Alérgico a la penicilina, toma anticoagulantes..."
+                  [(ngModel)]="nuevaDescripcionAntecedente" (keyup.enter)="agregarAntecedente()" />
+              </div>
+
+              <div class="col-12 col-md-2">
+                <button type="button"
+                  class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-1 py-2"
+                  (click)="agregarAntecedente()">
+                  <i antIcon type="plus" theme="outline"></i>
+                  <span>Añadir</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- LISTA DE ANTECEDENTES AGREGADOS -->
+          <div class="lista-antecedentes-box">
+            <h6 class="fw-bold mb-3 d-flex justify-content-between align-items-center">
+              <span>Historial de Antecedentes Registrados ({{ listaAntecedentes.length }})</span>
+            </h6>
+
+            @if (listaAntecedentes.length === 0) {
+            <div class="text-center py-4 bg-white rounded-3 border border-dashed">
+              <i antIcon type="info-circle" theme="outline" class="text-muted fs-3 mb-2 d-block"></i>
+              <p class="text-muted mb-0 small">No se han registrado antecedentes clínicos para este paciente.</p>
+              <small class="text-secondary">(Puede agregarlos arriba en cualquier momento)</small>
+            </div>
+            } @else {
+            <div class="antecedentes-items-list">
+              @for (ant of listaAntecedentes; track $index) {
+              <div
+                class="antecedente-item d-flex justify-content-between align-items-center p-3 mb-2 rounded-3 border bg-white shadow-sm">
+                <div class="d-flex align-items-center gap-3">
+                  <span class="badge" [ngClass]="getColorBadgeAntecedente(ant.tipoAntecedente)">
+                    {{ ant.tipoAntecedente }}
+                  </span>
+                  <div>
+                    <p class="mb-0 fw-medium text-dark">{{ ant.descripcionAntecedente }}</p>
+                    @if (ant.fechaRegistro) {
+                    <small class="text-muted">
+                      Registrado el {{ ant.fechaRegistro | date:'dd/MM/yyyy HH:mm' }}
+                      <span *ngIf="ant.registradoPorNombre">por {{ ant.registradoPorNombre }}</span>
+                    </small>
+                    }
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-icon" title="Eliminar antecedente"
+                  (click)="quitarAntecedente($index, ant)">
+                  <i antIcon type="delete" theme="outline"></i>
+                </button>
+              </div>
+              }
+            </div>
+            }
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="modal-footer-custom d-flex justify-content-between align-items-center">
+      <div>
+        @if (tabActiva === 'datos') {
+        <button type="button" class="btn btn-light" (click)="tabActiva = 'antecedentes'">
+          Ver Antecedentes Clínicos →
+        </button>
+        } @else {
+        <button type="button" class="btn btn-light" (click)="tabActiva = 'datos'">
+          ← Volver a Datos Personales
+        </button>
+        }
+      </div>
+
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-danger px-4" (click)="cerrar()" [disabled]="guardando">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-primary px-4 d-flex align-items-center gap-2" (click)="guardar()"
+          [disabled]="guardando">
+          @if (guardando) {
+          <span class="spinner-border spinner-border-sm" role="status"></span>
+          <span>Guardando...</span>
+          } @else {
+          <i antIcon type="check" theme="outline"></i>
+          <span>{{ modoEdicion ? 'Actualizar Paciente' : 'Guardar Paciente' }}</span>
+          }
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+}

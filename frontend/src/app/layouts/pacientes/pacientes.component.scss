@@ -1,0 +1,251 @@
+// ── Búsqueda y Filtros ───────────────────────────────────
+.search-box {
+  .search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+    pointer-events: none;
+  }
+
+  .search-input {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+    }
+  }
+
+  .btn-clear {
+    right: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+
+    &:hover {
+      color: #475569;
+    }
+  }
+}
+
+.filter-select {
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.9rem;
+  padding: 0.55rem 1rem;
+}
+
+.btn-nuevo {
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+// ── Card de Paciente ─────────────────────────────────────
+.paciente-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.08);
+    border-color: #cbd5e1;
+  }
+
+  &.inactivo {
+    opacity: 0.75;
+    background: #f8fafc;
+  }
+}
+
+.card-header-custom {
+  padding: 1.25rem 1.25rem 0.75rem;
+
+  .avatar-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+
+    &.femenino {
+      background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+      box-shadow: 0 4px 6px -1px rgba(236, 72, 153, 0.3);
+    }
+  }
+
+  .card-nombre {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #1e293b;
+    line-height: 1.3;
+  }
+
+  .badge-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.15rem 0.55rem;
+    border-radius: 9999px;
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    &.activo {
+      background: #ecfdf5;
+      color: #059669;
+      .dot { background: #10b981; }
+    }
+
+    &.inactivo {
+      background: #fef2f2;
+      color: #dc2626;
+      .dot { background: #ef4444; }
+    }
+  }
+
+  .badge-edad {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.15rem 0.5rem;
+    border-radius: 9999px;
+  }
+}
+
+.card-body-custom {
+  padding: 0.75rem 1.25rem;
+  flex: 1;
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.45rem;
+
+    .info-icon {
+      color: #94a3b8;
+      font-size: 0.95rem;
+      width: 16px;
+      flex-shrink: 0;
+    }
+
+    .info-label {
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .info-value {
+      color: #334155;
+    }
+
+    &.apoderado-badge-row {
+      background: #fffbeb;
+      padding: 0.35rem 0.6rem;
+      border-radius: 6px;
+      border: 1px dashed #fde68a;
+    }
+  }
+}
+
+.card-footer-custom {
+  padding: 0.75rem 1.25rem;
+  background: #f8fafc;
+  border-top: 1px solid #f1f5f9;
+
+  .btn-action {
+    border: none;
+    background: transparent;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &.btn-activar {
+      color: #059669;
+      background: #ecfdf5;
+      &:hover { background: #d1fae5; }
+    }
+
+    &.btn-desactivar {
+      color: #d97706;
+      background: #fffbeb;
+      &:hover { background: #fef3c7; }
+    }
+
+    &.btn-editar {
+      color: #2563eb;
+      background: #eff6ff;
+      &:hover { background: #dbeafe; }
+    }
+
+    &.btn-eliminar {
+      color: #dc2626;
+      background: #fef2f2;
+      &:hover { background: #fee2e2; }
+    }
+  }
+}
+
+// ── Paginación y Estado Vacío ────────────────────────────
+.page-size-select {
+  width: 70px;
+  border-radius: 6px;
+}
+
+.empty-state {
+  .empty-icon-box {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #94a3b8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+  }
+}

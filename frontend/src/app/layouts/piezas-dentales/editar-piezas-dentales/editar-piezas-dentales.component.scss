@@ -1,0 +1,217 @@
+// Variables de colores de grupos anatómicos
+$color-incisivo: #0284c7;
+$color-canino: #d97706;
+$color-premolar: #059669;
+$color-molar: #7c3aed;
+
+.bg-purple {
+  background-color: $color-molar !important;
+}
+
+.text-purple {
+  color: $color-molar !important;
+}
+
+// Badges de grupos dentarios
+.badge-incisivo {
+  background-color: rgba($color-incisivo, 0.12);
+  color: $color-incisivo;
+  border: 1px solid rgba($color-incisivo, 0.25);
+}
+
+.badge-canino {
+  background-color: rgba($color-canino, 0.12);
+  color: $color-canino;
+  border: 1px solid rgba($color-canino, 0.25);
+}
+
+.badge-premolar {
+  background-color: rgba($color-premolar, 0.12);
+  color: $color-premolar;
+  border: 1px solid rgba($color-premolar, 0.25);
+}
+
+.badge-molar {
+  background-color: rgba($color-molar, 0.12);
+  color: $color-molar;
+  border: 1px solid rgba($color-molar, 0.25);
+}
+
+.group-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+// Chips de estadísticas en el encabezado
+.stats-chips {
+  .stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.825rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    .stat-chip__number {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    &--total {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #e2e8f0;
+    }
+
+    &--adult {
+      background: rgba(37, 99, 235, 0.1);
+      color: #2563eb;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    &--kid {
+      background: rgba(245, 158, 11, 0.1);
+      color: #d97706;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+  }
+}
+
+// Panel de Filtros
+.filter-panel {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+
+  .input-group-text {
+    border-radius: 8px 0 0 8px;
+  }
+
+  .form-control,
+  .form-select {
+    border-radius: 8px;
+    font-size: 0.875rem;
+
+    &:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+  }
+
+  .input-group > .form-control {
+    border-radius: 0 8px 8px 0;
+  }
+}
+
+// Miniatura dental en tabla
+.tooth-thumb-wrap {
+  width: 36px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  padding: 3px;
+
+  .tooth-thumb-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+}
+
+.tooth-badge {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+  font-weight: 700;
+}
+
+// Botón de acción editar
+.btn-action-edit {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  font-weight: 500;
+  font-size: 0.82rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #16a34a;
+    color: #ffffff;
+    border-color: #16a34a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(22, 163, 74, 0.2) !important;
+  }
+}
+
+// Tabla general
+.custom-piezas-table {
+  thead th {
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #475569;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  tbody tr {
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: #f8fafc;
+    }
+  }
+}
+
+// Select de tamaño de página y paginación
+.select-page-size {
+  width: auto;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.custom-pagination {
+  .page-link {
+    color: #475569;
+    border-color: #e2e8f0;
+    padding: 0.35rem 0.75rem;
+
+    &:hover {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+  }
+
+  .page-item.active .page-link {
+    background-color: #2563eb;
+    border-color: #2563eb;
+    color: #ffffff;
+  }
+
+  .page-item.disabled .page-link {
+    color: #94a3b8;
+    background-color: #f8fafc;
+  }
+}
+
+// Animación de rotación para icono sync
+.spin {
+  animation: spin 1s infinite linear;
+  display: inline-block;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

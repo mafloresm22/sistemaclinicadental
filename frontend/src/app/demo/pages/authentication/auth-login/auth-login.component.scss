@@ -333,7 +333,7 @@ $accent: $blue;
         transition: background 0.2s, transform 0.15s;
 
         &:hover:not(:disabled) {
-          background: lighten($panel-bg, 8%);
+          background: color-mix(in srgb, $panel-bg, #ffffff 15%);
         }
 
         &:active:not(:disabled) {

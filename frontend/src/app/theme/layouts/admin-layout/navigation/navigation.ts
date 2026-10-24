@@ -128,11 +128,11 @@ export const NavigationItems: NavigationItem[] = [
             url: '/piezas-dentales'
           },
           {
-            id: 'encias',
-            title: 'Encías',
+            id: 'editar-piezas',
+            title: 'Editar Piezas',
             type: 'item',
             classes: 'nav-item',
-            url: '/piezas-dentales/encias'
+            url: '/piezas-dentales/editar-piezas'
           }
         ]
       }

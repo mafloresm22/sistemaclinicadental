@@ -58,7 +58,7 @@ const options = {
       { name: 'Sistema', description: 'Estado del servidor y base de datos' },
       { name: 'Especialidades', description: 'Gestión de especialidades odontológicas/médicas' },
       { name: 'Infraestructura', description: 'Gestión de Sedes y Consultorios de la clínica' },
-      { name: 'Pacientes', description: 'Gestión de pacientes' },
+      { name: 'Pacientes', description: 'Gestión de pacientes, antecedentes médicos y datos clínicos' },
       { name: 'Médicos', description: 'Gestión de médicos' },
       { name: 'Citas', description: 'Gestión de citas médicas' },
       { name: 'Tratamientos', description: 'Gestión de tratamientos odontológicos' },

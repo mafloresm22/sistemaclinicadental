@@ -3,20 +3,17 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SharedModule } from '../../theme/shared/shared.module';
 import { PiezasDentalesService, PiezaDental } from '../../services/piezas-dentales.service';
-import { ModalEditarPiezaComponent } from './modal-editar-pieza/modal-editar-pieza.component';
 import { IconService } from '@ant-design/icons-angular';
 import {
   AppstoreOutline,
   SearchOutline,
   CloseCircleOutline,
-  EditOutline,
   InfoCircleOutline,
   CheckOutline,
   CloseOutline,
   EyeOutline,
   FilterOutline,
   SyncOutline,
-  TableOutline,
   SmileOutline,
   InboxOutline,
   ArrowLeftOutline,
@@ -43,7 +40,7 @@ export interface InfoClinicaPieza {
 @Component({
   selector: 'app-piezas-dentales',
   standalone: true,
-  imports: [CommonModule, FormsModule, SharedModule, ModalEditarPiezaComponent],
+  imports: [CommonModule, FormsModule, SharedModule],
   templateUrl: './piezas-dentales.component.html',
   styleUrls: ['./piezas-dentales.component.scss']
 })
@@ -56,14 +53,12 @@ export class PiezasDentalesComponent implements OnInit {
       AppstoreOutline,
       SearchOutline,
       CloseCircleOutline,
-      EditOutline,
       InfoCircleOutline,
       CheckOutline,
       CloseOutline,
       EyeOutline,
       FilterOutline,
       SyncOutline,
-      TableOutline,
       SmileOutline,
       InboxOutline,
       ArrowLeftOutline,
@@ -82,19 +77,12 @@ export class PiezasDentalesComponent implements OnInit {
   cargando: boolean = false;
 
   // Filtros y modos de visualización
-  vistaActual: 'boca' | 'cuadrantes' | 'tabla' = 'boca';
+  vistaActual: 'boca' | 'cuadrantes' = 'boca';
   tipoDenticion: 'adulto' | 'infantil' = 'adulto';
   filtroGrupoActivo: string = ''; // 'Incisivo' | 'Canino' | 'Premolar' | 'Molar' | ''
-  terminoBusqueda: string = '';
-  filtroArcada: string = '';
-  filtroCuadrante: string = '';
 
   // Pieza seleccionada para ficha técnica clínica
   piezaSeleccionada: PiezaDental | null = null;
-
-  // Estado del modal de edición
-  modalEdicionVisible: boolean = false;
-  piezaParaEditar: PiezaDental | null = null;
 
   ngOnInit(): void {
     this.cargarPiezas();
@@ -185,40 +173,6 @@ export class PiezasDentalesComponent implements OnInit {
     return this.tipoDenticion === 'adulto' ? this.piezasQ3 : this.piezasQ7;
   }
 
-  // Listado filtrado para vista tabla / catálogo
-  get piezasFiltradas(): PiezaDental[] {
-    return this.piezas.filter((p) => {
-      // Filtro dentición
-      if (this.tipoDenticion === 'adulto' && p.cuadrante > 4) return false;
-      if (this.tipoDenticion === 'infantil' && p.cuadrante <= 4) return false;
-
-      // Filtro por grupo anatómico (Incisivo, Canino, etc.)
-      if (this.filtroGrupoActivo && this.getTipoPieza(p.idPieza) !== this.filtroGrupoActivo) {
-        return false;
-      }
-
-      // Filtro arcada
-      if (this.filtroArcada && p.arcada !== this.filtroArcada) {
-        return false;
-      }
-
-      // Filtro cuadrante
-      if (this.filtroCuadrante && p.cuadrante.toString() !== this.filtroCuadrante) {
-        return false;
-      }
-
-      // Búsqueda de texto
-      if (this.terminoBusqueda) {
-        const termino = this.terminoBusqueda.toLowerCase().trim();
-        const coincideNombre = p.nombrePieza.toLowerCase().includes(termino);
-        const coincideId = p.idPieza.toString().includes(termino);
-        if (!coincideNombre && !coincideId) return false;
-      }
-
-      return true;
-    });
-  }
-
   // Funciones anatómicas y clínicas de utilidad
   getTipoPieza(idPieza: number): 'Incisivo' | 'Canino' | 'Premolar' | 'Molar' {
     const unidad = idPieza % 10;
@@ -301,32 +255,5 @@ export class PiezasDentalesComponent implements OnInit {
   esPiezaAtenuada(pieza: PiezaDental): boolean {
     if (!this.filtroGrupoActivo) return false;
     return this.getTipoPieza(pieza.idPieza) !== this.filtroGrupoActivo;
-  }
-
-  abrirEdicion(pieza: PiezaDental, event?: Event): void {
-    if (event) {
-      event.stopPropagation();
-    }
-    this.piezaParaEditar = { ...pieza };
-    this.modalEdicionVisible = true;
-  }
-
-  cerrarModalEdicion(): void {
-    this.modalEdicionVisible = false;
-    this.piezaParaEditar = null;
-  }
-
-  onPiezaGuardada(piezaActualizada: PiezaDental): void {
-    const idx = this.piezas.findIndex((p) => p.idPieza === piezaActualizada.idPieza);
-    if (idx !== -1) {
-      this.piezas[idx] = { ...piezaActualizada };
-    }
-    if (this.piezaSeleccionada?.idPieza === piezaActualizada.idPieza) {
-      this.piezaSeleccionada = { ...piezaActualizada };
-    }
-  }
-
-  limpiarBusqueda(): void {
-    this.terminoBusqueda = '';
   }
 }

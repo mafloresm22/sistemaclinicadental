@@ -52,8 +52,16 @@ const routes: Routes = [
         loadComponent: () => import('./layouts/doctores/doctores.component').then((c) => c.DoctoresComponent)
       },
       {
+        path: 'pacientes',
+        loadComponent: () => import('./layouts/pacientes/pacientes.component').then((c) => c.PacientesComponent)
+      },
+      {
         path: 'piezas-dentales',
         loadComponent: () => import('./layouts/piezas-dentales/piezas-dentales.component').then((c) => c.PiezasDentalesComponent)
+      },
+      {
+        path: 'piezas-dentales/editar-piezas',
+        loadComponent: () => import('./layouts/piezas-dentales/editar-piezas-dentales/editar-piezas-dentales.component').then((c) => c.EditarPiezasDentalesComponent)
       }
     ]
   },
