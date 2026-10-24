@@ -73,7 +73,7 @@
     }
   }
 
-  // Scroll vertical en modal-body para mantener los botones siempre visibles
+  // Scroll vertical en modal-body
   .modal-body {
     flex: 1 1 auto;
     min-height: 0;
@@ -293,6 +293,7 @@
     color: #0369a1;
     display: flex;
     align-items: center;
+    gap: 0.5rem;
 
     i {
       font-size: 1rem;

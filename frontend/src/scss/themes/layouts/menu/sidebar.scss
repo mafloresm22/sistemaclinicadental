@@ -116,14 +116,18 @@
 
           > a {
             &:after {
-              content: '\e844';
-              font-family: 'feather';
-              font-size: 15px;
-              border: none;
+              content: '';
               position: absolute;
-              top: 11px;
+              top: 50%;
               right: 20px;
-              transition: 0.3s ease-in-out;
+              width: 7px;
+              height: 7px;
+              border-top: 2px solid currentColor;
+              border-right: 2px solid currentColor;
+              transform: translateY(-50%) rotate(45deg);
+              transition: transform 0.25s ease-in-out;
+              opacity: 0.65;
+              pointer-events: none;
             }
           }
 
@@ -177,7 +181,7 @@
           &.coded-trigger {
             > a {
               &:after {
-                transform: rotate(90deg);
+                transform: translateY(-65%) rotate(135deg);
               }
             }
 

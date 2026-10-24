@@ -99,5 +99,43 @@ export const NavigationItems: NavigationItem[] = [
         icon: 'user-add'
       }
     ]
+  },
+  {
+    id: 'odontologia',
+    title: 'Odontología',
+    type: 'group',
+    icon: 'smile',
+    children: [
+      {
+        id: 'odontogramas',
+        title: 'Odontogramas',
+        type: 'item',
+        classes: 'nav-item',
+        url: '/odontogramas',
+        icon: 'audit'
+      },
+      {
+        id: 'piezas-dentales',
+        title: 'Piezas Dentales',
+        type: 'collapse',
+        icon: 'appstore',
+        children: [
+          {
+            id: 'listado-piezas',
+            title: 'Listado de Piezas',
+            type: 'item',
+            classes: 'nav-item',
+            url: '/piezas-dentales'
+          },
+          {
+            id: 'encias',
+            title: 'Encías',
+            type: 'item',
+            classes: 'nav-item',
+            url: '/piezas-dentales/encias'
+          }
+        ]
+      }
+    ]
   }
 ];

@@ -268,8 +268,10 @@ Table Antecedentes_Paciente {
 }
 
 Table Piezas_Dentales {
-  idPieza int [pk, note: 'Codigo FDI: 11-48 y 51-85']
+  idPieza int [pk, note: 'Codigo FDI: 11-48 adultos, 51-85 deciduos']
   nombrePieza varchar(60) [not null]
+  cuadrante tinyint [not null, note: 'Cuadrante FDI: 1-4 adulto, 5-8 decidua']
+  arcada enum('Superior','Inferior') [not null, note: 'Superior (cuadrantes 1,2,5,6) / Inferior (3,4,7,8)']
 }
 
 Table Odontograma_Registros {

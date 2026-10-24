@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" width="60" height="100">
+  <defs>
+    <linearGradient id="root-can-inf" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dfd2be" />
+      <stop offset="50%" stop-color="#f5ede0" />
+      <stop offset="100%" stop-color="#cfbe9f" />
+    </linearGradient>
+    <linearGradient id="crown-can-inf" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d9e5ee" />
+      <stop offset="40%" stop-color="#f0f5fa" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+    <filter id="shadow-can-inf" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.15" />
+    </filter>
+  </defs>
+  <!-- Raíz hacia abajo -->
+  <path d="M 23 50 C 19 68 25 90 30 97 C 35 90 41 68 37 50 Z" fill="url(#root-can-inf)" filter="url(#shadow-can-inf)" stroke="#b8a688" stroke-width="0.8"/>
+  <path d="M 30 53 C 30 67 31 81 31 92" stroke="#cbb898" stroke-width="0.8" stroke-dasharray="2,2" fill="none"/>
+  <!-- Cuello cervical -->
+  <path d="M 17 50 C 24 53 36 53 43 50" fill="none" stroke="#e08f8f" stroke-width="1.3" stroke-linecap="round"/>
+  <!-- Corona con cúspide apuntando arriba -->
+  <path d="M 17 50 C 13 40 13 26 18 15 C 22 8 28 3 30 2 C 32 3 38 8 42 15 C 47 26 47 40 43 50 C 36 52 24 52 17 50 Z" fill="url(#crown-can-inf)" filter="url(#shadow-can-inf)" stroke="#adc3d4" stroke-width="1"/>
+  <!-- Vértice cúspide -->
+  <path d="M 30 2 L 30 32" stroke="#bcd0df" stroke-width="1.1" stroke-linecap="round"/>
+  <!-- Reflejos -->
+  <path d="M 20 40 C 17 32 18 20 23 12" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+</svg>

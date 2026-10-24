@@ -1,0 +1,656 @@
+<div class="row">
+  <div class="col-12">
+    <app-card [showHeader]="false" blockClass="p-3 p-md-4">
+
+      <!-- ENCABEZADO Y MÉTRICAS -->
+      <div class="piezas-header mb-4">
+        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+          <div>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-primary-subtle text-primary p-2 rounded-circle fs-5">
+                <i antIcon type="appstore" theme="outline"></i>
+              </span>
+              <div>
+                <h4 class="page-title mb-0 fw-bold text-dark">Catálogo Anatómico de Piezas Dentales</h4>
+                <p class="text-muted mb-0 small">
+                  Esquema interactivo de la cavidad bucal, arcadas dentarias y nomenclatura FDI internacional
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Métricas estadísticas -->
+          <div class="stats-chips d-flex gap-2 flex-wrap align-items-center">
+            <span class="stat-chip stat-chip--total">
+              <span class="stat-chip__number">{{ totalPiezas }}</span>
+              <span class="stat-chip__label">Catálogo FDI</span>
+            </span>
+            <span class="stat-chip stat-chip--adult">
+              <span class="stat-chip__number">{{ totalPermanentes }}</span>
+              <span class="stat-chip__label">Permanentes</span>
+            </span>
+            <span class="stat-chip stat-chip--kid">
+              <span class="stat-chip__number">{{ totalDeciduas }}</span>
+              <span class="stat-chip__label">Deciduas</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BARRA DE MODOS Y CONTROLES -->
+      <div
+        class="controls-toolbar p-3 rounded-4 mb-4 bg-light border d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+        <!-- Selector de Vista -->
+        <div class="btn-group view-switcher shadow-sm rounded-pill p-1 bg-white" role="group">
+          <button type="button" class="btn btn-sm rounded-pill px-3" [class.btn-primary]="vistaActual === 'boca'"
+            [class.btn-outline-secondary]="vistaActual !== 'boca'" [class.border-0]="vistaActual !== 'boca'"
+            (click)="vistaActual = 'boca'">
+            <i antIcon type="smile" theme="outline" class="me-1"></i> Boca Anatómica
+          </button>
+          <button type="button" class="btn btn-sm rounded-pill px-3" [class.btn-primary]="vistaActual === 'cuadrantes'"
+            [class.btn-outline-secondary]="vistaActual !== 'cuadrantes'" [class.border-0]="vistaActual !== 'cuadrantes'"
+            (click)="vistaActual = 'cuadrantes'">
+            <i antIcon type="appstore" theme="outline" class="me-1"></i> Cuadrantes FDI
+          </button>
+          <button type="button" class="btn btn-sm rounded-pill px-3" [class.btn-primary]="vistaActual === 'tabla'"
+            [class.btn-outline-secondary]="vistaActual !== 'tabla'" [class.border-0]="vistaActual !== 'tabla'"
+            (click)="vistaActual = 'tabla'">
+            <i antIcon type="table" theme="outline" class="me-1"></i> Catálogo Tabular
+          </button>
+        </div>
+
+        <!-- Selector de Dentición (Adulto / Niño) -->
+        <div class="dentition-toggle d-flex align-items-center gap-2">
+          <span class="small fw-semibold text-muted d-none d-sm-inline">Dentición:</span>
+          <div class="btn-group shadow-sm rounded-pill p-1 bg-white" role="group">
+            <button type="button" class="btn btn-sm rounded-pill px-3" [class.btn-dark]="tipoDenticion === 'adulto'"
+              [class.btn-outline-secondary]="tipoDenticion !== 'adulto'" [class.border-0]="tipoDenticion !== 'adulto'"
+              (click)="tipoDenticion = 'adulto'">
+              Permanente (Adulto - 32)
+            </button>
+            <button type="button" class="btn btn-sm rounded-pill px-3" [class.btn-dark]="tipoDenticion === 'infantil'"
+              [class.btn-outline-secondary]="tipoDenticion !== 'infantil'"
+              [class.border-0]="tipoDenticion !== 'infantil'" (click)="tipoDenticion = 'infantil'">
+              Temporal (Niño - 20)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEYENDA CLÍNICA / INDICACIONES INTERACTIVAS -->
+      <div class="legend-card p-3 rounded-4 mb-4 border bg-white shadow-sm">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <i antIcon type="info-circle" theme="outline" class="text-primary fs-5"></i>
+            <span class="fw-bold text-dark small text-uppercase letter-spacing-1">
+              Indicaciones de Grupos Dentarios (Haz clic para resaltar)
+            </span>
+          </div>
+          <small class="text-muted" *ngIf="filtroGrupoActivo">
+            Filtrando por: <strong>{{ filtroGrupoActivo }}</strong>
+            <button class="btn btn-link btn-sm text-danger p-0 ms-2 text-decoration-none"
+              (click)="filtroGrupoActivo = ''">
+              [Limpiar filtro]
+            </button>
+          </small>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 pt-1">
+          <button type="button" class="legend-pill legend-pill--incisivo"
+            [class.legend-pill--active]="filtroGrupoActivo === 'Incisivo'" (click)="toggleFiltroGrupo('Incisivo')">
+            <span class="color-dot bg-info"></span>
+            <strong>Incisivos</strong> (Corte y estética)
+          </button>
+
+          <button type="button" class="legend-pill legend-pill--canino"
+            [class.legend-pill--active]="filtroGrupoActivo === 'Canino'" (click)="toggleFiltroGrupo('Canino')">
+            <span class="color-dot bg-warning"></span>
+            <strong>Caninos</strong> (Desgarro de alimentos)
+          </button>
+
+          <button type="button" class="legend-pill legend-pill--premolar" *ngIf="tipoDenticion === 'adulto'"
+            [class.legend-pill--active]="filtroGrupoActivo === 'Premolar'" (click)="toggleFiltroGrupo('Premolar')">
+            <span class="color-dot bg-success"></span>
+            <strong>Premolares</strong> (Trituración intermedia)
+          </button>
+
+          <button type="button" class="legend-pill legend-pill--molar"
+            [class.legend-pill--active]="filtroGrupoActivo === 'Molar'" (click)="toggleFiltroGrupo('Molar')">
+            <span class="color-dot bg-purple"></span>
+            <strong>Molares</strong> (Molienda principal)
+          </button>
+        </div>
+      </div>
+
+      <!-- SPINNER DE CARGA -->
+      <div *ngIf="cargando" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando piezas dentales...</span>
+        </div>
+        <p class="text-muted mt-2 mb-0 small">Cargando cavidad bucal y registros FDI...</p>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VISTA 1: BOCA ANATÓMICA / ODONTOGRAMA      -->
+      <!-- ========================================== -->
+      <div *ngIf="!cargando && vistaActual === 'boca'">
+        <div class="row g-4">
+
+          <!-- COLUMNA PRINCIPAL: LA BOCA CON IMÁGENES -->
+          <div class="col-12 col-xl-8">
+            <div class="mouth-container shadow-sm rounded-4 p-3 p-md-4 border position-relative">
+
+              <!-- Aviso de desplazamiento horizontal para pantallas reducidas -->
+              <div class="scroll-hint-bar d-flex align-items-center justify-content-between mb-2 px-1 text-muted small">
+                <span>
+                  <i antIcon type="info-circle" theme="outline" class="text-primary me-1"></i>
+                  <span>Desplaza la barra para visualizar todas las piezas de la arcada</span>
+                </span>
+              </div>
+
+              <!-- CONTENEDOR CON BARRA DE DESPLAZAMIENTO HORIZONTAL -->
+              <div class="mouth-scroll-area">
+                <div class="mouth-arch-content">
+
+                  <!-- Orientación Odontológica (Paciente de frente) -->
+                  <div
+                    class="orientation-bar d-flex justify-content-between align-items-center mb-2 px-2 text-muted small fw-semibold text-uppercase">
+                    <span
+                      class="badge bg-light text-secondary border px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1">
+                      <i antIcon type="arrow-left" theme="outline"></i> Derecha del Paciente
+                    </span>
+                    <span class="badge bg-primary text-white px-3 py-1 rounded-pill small">
+                      {{ tipoDenticion === 'adulto' ? 'Maxilar Superior (Adulto)' : 'Maxilar Superior (Deciduo)' }}
+                    </span>
+                    <span
+                      class="badge bg-light text-secondary border px-3 py-2 rounded-pill d-inline-flex align-items-center gap-1">
+                      Izquierda del Paciente <i antIcon type="arrow-right" theme="outline"></i>
+                    </span>
+                  </div>
+
+                  <!-- LÍNEA MEDIA SAGITAL GUÍA -->
+                  <div class="sagittal-guide-line"></div>
+
+                  <!-- ARCADA SUPERIOR (MAXILAR) -->
+                  <div class="arch-wrapper arch-wrapper--superior mb-3">
+                    <div class="arch-gum-contour arch-gum-contour--superior">
+                      <div class="arch-teeth-row">
+
+                        <!-- Cuadrante Superior Derecho (Q1 o Q5) -->
+                        <div class="quadrant-teeth quadrant-teeth--sup-der">
+                          <div class="quadrant-tag">
+                            {{ tipoDenticion === 'adulto' ? 'Cuadrante 1 (FDI 18-11)' : 'Cuadrante 5 (FDI 55-51)' }}
+                          </div>
+                          <div class="teeth-flex-row">
+                            @for (pieza of cuadranteSupDer; track pieza.idPieza) {
+                            <div class="tooth-card"
+                              [class.tooth-card--selected]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                              [class.tooth-card--dimmed]="esPiezaAtenuada(pieza)" (click)="seleccionarPieza(pieza)"
+                              [title]="pieza.nombrePieza">
+                              <span class="tooth-fdi-badge" [ngClass]="getInfoClinica(pieza).badgeClass">
+                                {{ pieza.idPieza }}
+                              </span>
+                              <div class="tooth-image-wrap">
+                                <img [src]="getInfoClinica(pieza).imagen" [alt]="pieza.nombrePieza" class="tooth-img" />
+                              </div>
+                              <span class="tooth-type-label small text-truncate">
+                                {{ getInfoClinica(pieza).tipo }}
+                              </span>
+                            </div>
+                            }
+                          </div>
+                        </div>
+
+                        <!-- Divisor Sagital Central -->
+                        <div class="arch-midline-separator">
+                          <div class="midline-notch"></div>
+                        </div>
+
+                        <!-- Cuadrante Superior Izquierdo (Q2 o Q6) -->
+                        <div class="quadrant-teeth quadrant-teeth--sup-izq">
+                          <div class="quadrant-tag">
+                            {{ tipoDenticion === 'adulto' ? 'Cuadrante 2 (FDI 21-28)' : 'Cuadrante 6 (FDI 61-65)' }}
+                          </div>
+                          <div class="teeth-flex-row">
+                            @for (pieza of cuadranteSupIzq; track pieza.idPieza) {
+                            <div class="tooth-card"
+                              [class.tooth-card--selected]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                              [class.tooth-card--dimmed]="esPiezaAtenuada(pieza)" (click)="seleccionarPieza(pieza)"
+                              [title]="pieza.nombrePieza">
+                              <span class="tooth-fdi-badge" [ngClass]="getInfoClinica(pieza).badgeClass">
+                                {{ pieza.idPieza }}
+                              </span>
+                              <div class="tooth-image-wrap">
+                                <img [src]="getInfoClinica(pieza).imagen" [alt]="pieza.nombrePieza" class="tooth-img" />
+                              </div>
+                              <span class="tooth-type-label small text-truncate">
+                                {{ getInfoClinica(pieza).tipo }}
+                              </span>
+                            </div>
+                            }
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- HENDIDURA BUCAL / PLANO OCLUSAL MEDIO -->
+                  <div
+                    class="mouth-occlusal-plane my-3 py-2 px-3 rounded-4 d-flex align-items-center justify-content-between">
+                    <span class="plane-label">
+                      <i antIcon type="smile" theme="outline" class="me-1"></i> Plano Oclusal Bucal
+                    </span>
+                    <span class="plane-center-indicator d-inline-flex align-items-center gap-1">
+                      <i antIcon type="caret-up" theme="outline"></i> Línea Media Dental <i antIcon type="caret-down"
+                        theme="outline"></i>
+                    </span>
+                    <span class="plane-label">
+                      Cavidad Oral
+                    </span>
+                  </div>
+
+                  <!-- ARCADA INFERIOR (MANDÍBULA) -->
+                  <div class="arch-wrapper arch-wrapper--inferior mt-3">
+                    <div class="arch-gum-contour arch-gum-contour--inferior">
+                      <div class="arch-teeth-row">
+
+                        <!-- Cuadrante Inferior Derecho (Q4 o Q8) -->
+                        <div class="quadrant-teeth quadrant-teeth--inf-der">
+                          <div class="teeth-flex-row">
+                            @for (pieza of cuadranteInfDer; track pieza.idPieza) {
+                            <div class="tooth-card"
+                              [class.tooth-card--selected]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                              [class.tooth-card--dimmed]="esPiezaAtenuada(pieza)" (click)="seleccionarPieza(pieza)"
+                              [title]="pieza.nombrePieza">
+                              <span class="tooth-type-label small text-truncate">
+                                {{ getInfoClinica(pieza).tipo }}
+                              </span>
+                              <div class="tooth-image-wrap">
+                                <img [src]="getInfoClinica(pieza).imagen" [alt]="pieza.nombrePieza" class="tooth-img" />
+                              </div>
+                              <span class="tooth-fdi-badge" [ngClass]="getInfoClinica(pieza).badgeClass">
+                                {{ pieza.idPieza }}
+                              </span>
+                            </div>
+                            }
+                          </div>
+                          <div class="quadrant-tag mt-2">
+                            {{ tipoDenticion === 'adulto' ? 'Cuadrante 4 (FDI 48-41)' : 'Cuadrante 8 (FDI 85-81)' }}
+                          </div>
+                        </div>
+
+                        <!-- Divisor Sagital Central -->
+                        <div class="arch-midline-separator">
+                          <div class="midline-notch"></div>
+                        </div>
+
+                        <!-- Cuadrante Inferior Izquierdo (Q3 o Q7) -->
+                        <div class="quadrant-teeth quadrant-teeth--inf-izq">
+                          <div class="teeth-flex-row">
+                            @for (pieza of cuadranteInfIzq; track pieza.idPieza) {
+                            <div class="tooth-card"
+                              [class.tooth-card--selected]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                              [class.tooth-card--dimmed]="esPiezaAtenuada(pieza)" (click)="seleccionarPieza(pieza)"
+                              [title]="pieza.nombrePieza">
+                              <span class="tooth-type-label small text-truncate">
+                                {{ getInfoClinica(pieza).tipo }}
+                              </span>
+                              <div class="tooth-image-wrap">
+                                <img [src]="getInfoClinica(pieza).imagen" [alt]="pieza.nombrePieza" class="tooth-img" />
+                              </div>
+                              <span class="tooth-fdi-badge" [ngClass]="getInfoClinica(pieza).badgeClass">
+                                {{ pieza.idPieza }}
+                              </span>
+                            </div>
+                            }
+                          </div>
+                          <div class="quadrant-tag mt-2">
+                            {{ tipoDenticion === 'adulto' ? 'Cuadrante 3 (FDI 31-38)' : 'Cuadrante 7 (FDI 71-75)' }}
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Indicador inferior de mandíbula -->
+                  <div class="text-center mt-3">
+                    <span class="badge bg-secondary text-white px-3 py-1 rounded-pill small">
+                      {{ tipoDenticion === 'adulto' ? 'Mandíbula Inferior (Adulto)' : 'Mandíbula Inferior (Deciduo)' }}
+                    </span>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- COLUMNA LATERAL: FICHA TÉCNICA CLÍNICA DEL DIENTE SELECCIONADO -->
+          <div class="col-12 col-xl-4">
+            @if (piezaSeleccionada) {
+            <div class="tooth-clinical-sheet card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+              <!-- Encabezado de la ficha -->
+              <div class="sheet-header p-4 text-white position-relative">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                  <span class="fdi-number-pill">
+                    FDI #{{ piezaSeleccionada.idPieza }}
+                  </span>
+                  <button type="button"
+                    class="btn btn-sm btn-light rounded-pill px-3 shadow-sm d-flex align-items-center gap-1"
+                    (click)="abrirEdicion(piezaSeleccionada, $event)">
+                    <i antIcon type="edit" theme="outline"></i>
+                    <span>Editar</span>
+                  </button>
+                </div>
+                <h4 class="sheet-title fw-bold text-white mb-1">
+                  {{ piezaSeleccionada.nombrePieza }}
+                </h4>
+                <div class="d-flex align-items-center gap-2 mt-2">
+                  <span class="badge bg-white text-dark rounded-pill px-3 py-1">
+                    Arcada {{ piezaSeleccionada.arcada }}
+                  </span>
+                  <span class="badge bg-white-50 text-white rounded-pill px-3 py-1">
+                    Cuadrante {{ piezaSeleccionada.cuadrante }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Cuerpo de la ficha con imagen destacada y anatomía -->
+              <div class="sheet-body p-4 bg-white">
+
+                <!-- Gran render anatómico con resplandor -->
+                <div class="tooth-big-preview text-center py-3 mb-4 rounded-4 bg-light border position-relative">
+                  <img [src]="getInfoClinica(piezaSeleccionada).imagen" [alt]="piezaSeleccionada.nombrePieza"
+                    class="tooth-big-img" />
+                  <div class="mt-2">
+                    <span class="badge px-3 py-1 rounded-pill fs-6"
+                      [ngClass]="getInfoClinica(piezaSeleccionada).badgeClass">
+                      {{ getInfoClinica(piezaSeleccionada).tipo }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Especificaciones anatómicas -->
+                <div class="clinical-specs-list d-flex flex-column gap-3">
+
+                  <div class="spec-item p-3 rounded-3 bg-light-subtle border">
+                    <span
+                      class="spec-label d-flex align-items-center gap-1 text-muted small fw-semibold text-uppercase">
+                      <i antIcon type="aim" theme="outline" class="text-primary"></i> Función Masticatoria Principal
+                    </span>
+                    <p class="spec-value mb-0 text-dark fw-medium">
+                      {{ getInfoClinica(piezaSeleccionada).funcion }}
+                    </p>
+                  </div>
+
+                  <div class="spec-item p-3 rounded-3 bg-light-subtle border">
+                    <span
+                      class="spec-label d-flex align-items-center gap-1 text-muted small fw-semibold text-uppercase">
+                      <i antIcon type="cluster" theme="outline" class="text-primary"></i> Anatomía Radicular (Raíces)
+                    </span>
+                    <p class="spec-value mb-0 text-dark fw-medium">
+                      {{ getInfoClinica(piezaSeleccionada).raices }}
+                    </p>
+                  </div>
+
+                  <div class="spec-item p-3 rounded-3 bg-light-subtle border">
+                    <span
+                      class="spec-label d-flex align-items-center gap-1 text-muted small fw-semibold text-uppercase">
+                      <i antIcon type="gold" theme="outline" class="text-primary"></i> Morfología Coronal (Cúspides /
+                      Borde)
+                    </span>
+                    <p class="spec-value mb-0 text-dark fw-medium">
+                      {{ getInfoClinica(piezaSeleccionada).cuspides }}
+                    </p>
+                  </div>
+
+                  <div class="spec-item p-3 rounded-3 bg-light-subtle border">
+                    <span
+                      class="spec-label d-flex align-items-center gap-1 text-muted small fw-semibold text-uppercase">
+                      <i antIcon type="history" theme="outline" class="text-primary"></i> Cronología de Erupción Típica
+                    </span>
+                    <p class="spec-value mb-0 text-dark fw-medium">
+                      {{ getInfoClinica(piezaSeleccionada).erupcion }}
+                    </p>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+            } @else {
+            <div
+              class="card border-0 shadow-sm rounded-4 p-5 text-center bg-light h-100 d-flex align-items-center justify-content-center">
+              <i antIcon type="inbox" theme="outline" class="fs-1 text-muted mb-2"></i>
+              <h5 class="text-dark">Selecciona un diente en la boca</h5>
+              <p class="text-muted small mb-0">Haz clic en cualquier pieza dental para inspeccionar su ficha anatómica
+                completa.</p>
+            </div>
+            }
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VISTA 2: CUADRANTES FDI                    -->
+      <!-- ========================================== -->
+      <div *ngIf="!cargando && vistaActual === 'cuadrantes'">
+        <div class="row g-4">
+
+          <!-- Cuadrante Superior Derecho -->
+          <div class="col-12 col-lg-6">
+            <div class="card border shadow-sm rounded-4 p-3 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h6 class="mb-0 fw-bold text-primary">
+                  {{ tipoDenticion === 'adulto' ? 'Cuadrante 1: Superior Derecho' : 'Cuadrante 5: Superior Derecho
+                  (Deciduo)' }}
+                </h6>
+                <span class="badge bg-primary-subtle text-primary">{{ cuadranteSupDer.length }} piezas</span>
+              </div>
+              <div class="row g-2">
+                @for (pieza of cuadranteSupDer; track pieza.idPieza) {
+                <div class="col-6 col-sm-3">
+                  <div class="quad-mini-card p-2 text-center rounded-3 border"
+                    [class.quad-mini-card--active]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                    (click)="seleccionarPieza(pieza); vistaActual = 'boca'">
+                    <img [src]="getInfoClinica(pieza).imagen" class="quad-mini-img mb-1" />
+                    <div class="fw-bold text-dark">#{{ pieza.idPieza }}</div>
+                    <small class="text-muted d-block text-truncate">{{ pieza.nombrePieza }}</small>
+                  </div>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Cuadrante Superior Izquierdo -->
+          <div class="col-12 col-lg-6">
+            <div class="card border shadow-sm rounded-4 p-3 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h6 class="mb-0 fw-bold text-primary">
+                  {{ tipoDenticion === 'adulto' ? 'Cuadrante 2: Superior Izquierdo' : 'Cuadrante 6: Superior Izquierdo
+                  (Deciduo)' }}
+                </h6>
+                <span class="badge bg-primary-subtle text-primary">{{ cuadranteSupIzq.length }} piezas</span>
+              </div>
+              <div class="row g-2">
+                @for (pieza of cuadranteSupIzq; track pieza.idPieza) {
+                <div class="quad-mini-card p-2 text-center rounded-3 border"
+                  [class.quad-mini-card--active]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                  (click)="seleccionarPieza(pieza); vistaActual = 'boca'">
+                  <img [src]="getInfoClinica(pieza).imagen" class="quad-mini-img mb-1" />
+                  <div class="fw-bold text-dark">#{{ pieza.idPieza }}</div>
+                  <small class="text-muted d-block text-truncate">{{ pieza.nombrePieza }}</small>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Cuadrante Inferior Derecho -->
+          <div class="col-12 col-lg-6">
+            <div class="card border shadow-sm rounded-4 p-3 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h6 class="mb-0 fw-bold text-secondary">
+                  {{ tipoDenticion === 'adulto' ? 'Cuadrante 4: Inferior Derecho' : 'Cuadrante 8: Inferior Derecho
+                  (Deciduo)' }}
+                </h6>
+                <span class="badge bg-secondary-subtle text-secondary">{{ cuadranteInfDer.length }} piezas</span>
+              </div>
+              <div class="row g-2">
+                @for (pieza of cuadranteInfDer; track pieza.idPieza) {
+                <div class="quad-mini-card p-2 text-center rounded-3 border"
+                  [class.quad-mini-card--active]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                  (click)="seleccionarPieza(pieza); vistaActual = 'boca'">
+                  <img [src]="getInfoClinica(pieza).imagen" class="quad-mini-img mb-1" />
+                  <div class="fw-bold text-dark">#{{ pieza.idPieza }}</div>
+                  <small class="text-muted d-block text-truncate">{{ pieza.nombrePieza }}</small>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Cuadrante Inferior Izquierdo -->
+          <div class="col-12 col-lg-6">
+            <div class="card border shadow-sm rounded-4 p-3 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                <h6 class="mb-0 fw-bold text-secondary">
+                  {{ tipoDenticion === 'adulto' ? 'Cuadrante 3: Inferior Izquierdo' : 'Cuadrante 7: Inferior Izquierdo
+                  (Deciduo)' }}
+                </h6>
+                <span class="badge bg-secondary-subtle text-secondary">{{ cuadranteInfIzq.length }} piezas</span>
+              </div>
+              <div class="row g-2">
+                @for (pieza of cuadranteInfIzq; track pieza.idPieza) {
+                <div class="quad-mini-card p-2 text-center rounded-3 border"
+                  [class.quad-mini-card--active]="piezaSeleccionada?.idPieza === pieza.idPieza"
+                  (click)="seleccionarPieza(pieza); vistaActual = 'boca'">
+                  <img [src]="getInfoClinica(pieza).imagen" class="quad-mini-img mb-1" />
+                  <div class="fw-bold text-dark">#{{ pieza.idPieza }}</div>
+                  <small class="text-muted d-block text-truncate">{{ pieza.nombrePieza }}</small>
+                </div>
+                }
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========================================== -->
+      <!-- VISTA 3: CATÁLOGO TABULAR / LISTADO       -->
+      <!-- ========================================== -->
+      <div *ngIf="!cargando && vistaActual === 'tabla'">
+
+        <!-- Filtros de búsqueda en la tabla -->
+        <div class="row g-3 mb-3">
+          <div class="col-12 col-md-5">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0">
+                <i antIcon type="search" theme="outline"></i>
+              </span>
+              <input type="text" class="form-control border-start-0 ps-0" placeholder="Buscar por FDI o nombre..."
+                [(ngModel)]="terminoBusqueda" />
+              <button class="btn btn-outline-secondary" *ngIf="terminoBusqueda" (click)="limpiarBusqueda()">
+                <i antIcon type="close-circle" theme="outline"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="col-6 col-md-3">
+            <select class="form-select" [(ngModel)]="filtroArcada">
+              <option value="">Todas las arcadas</option>
+              <option value="Superior">Arcada Superior</option>
+              <option value="Inferior">Arcada Inferior</option>
+            </select>
+          </div>
+
+          <div class="col-6 col-md-4">
+            <select class="form-select" [(ngModel)]="filtroCuadrante">
+              <option value="">Todos los cuadrantes</option>
+              <option value="1">Cuadrante 1 (Sup. Der.)</option>
+              <option value="2">Cuadrante 2 (Sup. Izq.)</option>
+              <option value="3">Cuadrante 3 (Inf. Izq.)</option>
+              <option value="4">Cuadrante 4 (Inf. Der.)</option>
+              <option value="5">Cuadrante 5 (Deciduo Sup. Der.)</option>
+              <option value="6">Cuadrante 6 (Deciduo Sup. Izq.)</option>
+              <option value="7">Cuadrante 7 (Deciduo Inf. Izq.)</option>
+              <option value="8">Cuadrante 8 (Deciduo Inf. Der.)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-responsive rounded-4 border shadow-sm">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 80px;" class="text-center">Diente</th>
+                <th style="width: 100px;">Código FDI</th>
+                <th>Nombre de la Pieza Dental</th>
+                <th style="width: 130px;">Arcada</th>
+                <th style="width: 120px;">Cuadrante</th>
+                <th style="width: 140px;">Grupo Anatómico</th>
+                <th style="width: 110px;" class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (pieza of piezasFiltradas; track pieza.idPieza) {
+              <tr [class.table-active]="piezaSeleccionada?.idPieza === pieza.idPieza">
+                <td class="text-center">
+                  <img [src]="getInfoClinica(pieza).imagen" style="width: 32px; height: 48px; object-fit: contain;" />
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="getInfoClinica(pieza).badgeClass">
+                    #{{ pieza.idPieza }}
+                  </span>
+                </td>
+                <td>
+                  <div class="fw-semibold text-dark">{{ pieza.nombrePieza }}</div>
+                  <small class="text-muted">{{ getInfoClinica(pieza).funcion }}</small>
+                </td>
+                <td>
+                  <span class="badge"
+                    [ngClass]="pieza.arcada === 'Superior' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info'">
+                    {{ pieza.arcada }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge bg-light text-dark border">Q{{ pieza.cuadrante }}</span>
+                </td>
+                <td>
+                  <span class="fw-medium" [ngClass]="getInfoClinica(pieza).colorClass">
+                    {{ getInfoClinica(pieza).tipo }}
+                  </span>
+                </td>
+                <td class="text-end">
+                  <button type="button" class="btn btn-sm btn-outline-primary rounded-circle"
+                    title="Editar nombre de la pieza" (click)="abrirEdicion(pieza, $event)">
+                    <i antIcon type="edit" theme="outline"></i>
+                  </button>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                  No se encontraron piezas dentales con los criterios seleccionados.
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </app-card>
+  </div>
+</div>
+
+<!-- Modal para editar el nombre de la pieza dental -->
+<app-modal-editar-pieza [visible]="modalEdicionVisible" [pieza]="piezaParaEditar" (guardado)="onPiezaGuardada($event)"
+  (cerrado)="cerrarModalEdicion()">
+</app-modal-editar-pieza>

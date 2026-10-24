@@ -1,0 +1,101 @@
+@if (visible && pieza) {
+<div class="custom-modal-backdrop" (click)="cerrar()"></div>
+<div class="custom-modal-dialog">
+    <div class="custom-modal-content shadow-lg border-0 rounded-4">
+
+        <!-- Header -->
+        <div class="modal-header border-bottom px-4 py-3 d-flex align-items-center justify-content-between">
+            <h5 class="modal-title fw-bold text-dark m-0 d-flex align-items-center gap-2">
+                <i antIcon type="edit" theme="outline" class="text-primary"></i>
+                <span>Editar Pieza Dental</span>
+            </h5>
+            <button type="button" class="btn-close" aria-label="Cerrar" (click)="cerrar()"></button>
+        </div>
+
+        <!-- Formulario -->
+        <form [formGroup]="formPieza" (ngSubmit)="guardar()">
+            <div class="modal-body px-4 py-4">
+
+                <!-- Tarjeta de datos anatómicos de referencia -->
+                <div class="user-credentials-note mb-4 p-3 rounded-3">
+                    <div class="d-flex align-items-center gap-2 mb-2 text-primary fw-semibold small">
+                        <i antIcon type="info-circle" theme="outline"></i>
+                        <span>Datos Anatómicos Estándar FDI</span>
+                    </div>
+                    <div class="row g-2 text-center pt-1">
+                        <div class="col-4">
+                            <span class="text-secondary d-block small">Código FDI</span>
+                            <strong class="fs-5 text-primary">#{{ pieza.idPieza }}</strong>
+                        </div>
+                        <div class="col-4 border-start border-end">
+                            <span class="text-secondary d-block small">Arcada</span>
+                            <span class="badge" [ngClass]="pieza.arcada === 'Superior' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info'">
+                                {{ pieza.arcada }}
+                            </span>
+                        </div>
+                        <div class="col-4">
+                            <span class="text-secondary d-block small">Cuadrante</span>
+                            <strong class="text-dark">Q{{ pieza.cuadrante }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campo: Nombre de la Pieza Dental -->
+                <div class="mb-3">
+                    <label for="nombrePieza" class="form-label fw-semibold text-secondary small">
+                        Nombre de la Pieza Dental <span class="text-danger">*</span>
+                    </label>
+                    <input
+                        id="nombrePieza"
+                        type="text"
+                        class="form-control"
+                        placeholder="Ej. Primer molar superior derecho"
+                        formControlName="nombrePieza"
+                        maxlength="60"
+                        [class.is-invalid]="campo('nombrePieza')?.invalid && campo('nombrePieza')?.touched"
+                    />
+                    @if (campo('nombrePieza')?.invalid && campo('nombrePieza')?.touched) {
+                    <div class="invalid-feedback">
+                        @if (campo('nombrePieza')?.errors?.['required']) { El nombre de la pieza es obligatorio. }
+                        @if (campo('nombrePieza')?.errors?.['maxlength']) { Máximo 60 caracteres. }
+                    </div>
+                    }
+                    <div class="d-flex justify-content-end mt-1">
+                        <span class="form-text text-muted small">
+                            {{ campo('nombrePieza')?.value?.length || 0 }} / 60 caracteres
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Nota informativa -->
+                <div class="info-note mt-3">
+                    <i antIcon type="info-circle" theme="outline"></i>
+                    <span>Los campos de código FDI, arcada y cuadrante son inmutables de la norma odontológica internacional.</span>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-top px-4 py-3 bg-light rounded-bottom-4 d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-danger px-3" (click)="cerrar()" [disabled]="guardando">
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    class="btn btn-primary px-4 d-inline-flex align-items-center gap-2"
+                    [disabled]="guardando || formPieza.invalid"
+                >
+                    @if (guardando) {
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span>Guardando...</span>
+                    } @else {
+                    <i antIcon type="check" theme="outline"></i>
+                    <span>Actualizar</span>
+                    }
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+}

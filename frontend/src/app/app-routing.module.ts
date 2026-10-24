@@ -50,6 +50,10 @@ const routes: Routes = [
       {
         path: 'doctores',
         loadComponent: () => import('./layouts/doctores/doctores.component').then((c) => c.DoctoresComponent)
+      },
+      {
+        path: 'piezas-dentales',
+        loadComponent: () => import('./layouts/piezas-dentales/piezas-dentales.component').then((c) => c.PiezasDentalesComponent)
       }
     ]
   },

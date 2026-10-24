@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" width="60" height="100">
+  <defs>
+    <linearGradient id="root-inf" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dfd2be" />
+      <stop offset="50%" stop-color="#f5ede0" />
+      <stop offset="100%" stop-color="#cfbe9f" />
+    </linearGradient>
+    <linearGradient id="crown-inf" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d9e5ee" />
+      <stop offset="40%" stop-color="#f0f5fa" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+    <filter id="shadow-inf" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.15" />
+    </filter>
+  </defs>
+  <!-- Raíz inferior recta cónica hacia abajo -->
+  <path d="M 24 47 C 22 65 26 85 30 95 C 34 85 38 65 36 47 Z" fill="url(#root-inf)" filter="url(#shadow-inf)" stroke="#b8a688" stroke-width="0.8"/>
+  <path d="M 30 50 C 30 63 30 78 30 88" stroke="#cbb898" stroke-width="0.7" stroke-dasharray="2,2" fill="none"/>
+  <!-- Cuello cervical -->
+  <path d="M 19 47 C 25 50 35 50 41 47" fill="none" stroke="#e08f8f" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Corona Incisivo Inferior (más esbelta y recta) -->
+  <path d="M 19 47 C 16 38 17 20 20 7 C 23 4 37 4 40 7 C 43 20 44 38 41 47 C 35 49 25 49 19 47 Z" fill="url(#crown-inf)" filter="url(#shadow-inf)" stroke="#adc3d4" stroke-width="1"/>
+  <!-- Borde incisal arriba -->
+  <line x1="20" y1="7" x2="40" y2="7" stroke="#b4cadb" stroke-width="1.2"/>
+  <!-- Reflejos de brillo -->
+  <path d="M 23 10 C 21 22 22 36 24 42" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+  <path d="M 30 11 C 30 22 30 36 30 43" stroke="#d4e3ef" stroke-width="0.7" fill="none"/>
+</svg>

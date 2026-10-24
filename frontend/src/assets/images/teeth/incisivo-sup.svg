@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" width="60" height="100">
+  <defs>
+    <linearGradient id="root-sup" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dfd2be" />
+      <stop offset="50%" stop-color="#f5ede0" />
+      <stop offset="100%" stop-color="#cfbe9f" />
+    </linearGradient>
+    <linearGradient id="crown-sup" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="60%" stop-color="#f0f5fa" />
+      <stop offset="100%" stop-color="#d9e5ee" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.15" />
+    </filter>
+  </defs>
+  <!-- Raíz superior única cónica -->
+  <path d="M 23 52 C 20 35 25 15 30 5 C 35 15 40 35 37 52 Z" fill="url(#root-sup)" filter="url(#shadow)" stroke="#b8a688" stroke-width="0.8"/>
+  <path d="M 29 12 C 30 25 31 38 31 50" stroke="#cbb898" stroke-width="0.7" stroke-dasharray="2,2" fill="none"/>
+  <!-- Línea cervical / cuello -->
+  <path d="M 18 53 C 24 50 36 50 42 53" fill="none" stroke="#e08f8f" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Corona en pala Incisivo Superior -->
+  <path d="M 17 53 C 14 62 13 80 16 93 C 19 96 41 96 44 93 C 47 80 46 62 43 53 C 36 51 24 51 17 53 Z" fill="url(#crown-sup)" filter="url(#shadow)" stroke="#adc3d4" stroke-width="1"/>
+  <!-- Reflejos y textura esmalte -->
+  <path d="M 20 62 C 18 72 19 86 21 91" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <path d="M 27 65 C 26 75 27 88 28 92" stroke="#d4e3ef" stroke-width="0.7" fill="none"/>
+  <path d="M 33 65 C 34 75 33 88 32 92" stroke="#d4e3ef" stroke-width="0.7" fill="none"/>
+  <!-- Borde incisal sutil -->
+  <line x1="17" y1="93" x2="43" y2="93" stroke="#b4cadb" stroke-width="1.2"/>
+</svg>

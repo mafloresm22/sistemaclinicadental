@@ -62,6 +62,7 @@ const options = {
       { name: 'Médicos', description: 'Gestión de médicos' },
       { name: 'Citas', description: 'Gestión de citas médicas' },
       { name: 'Tratamientos', description: 'Gestión de tratamientos odontológicos' },
+      { name: 'Piezas Dentales', description: 'Catálogo de piezas dentales FDI (adultos y deciduos)' },
     ],
   },
   // Archivos donde swagger-jsdoc buscará comentarios JSDoc con @swagger

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 100" width="60" height="100">
+  <defs>
+    <linearGradient id="root-pre-inf" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#dfd2be" />
+      <stop offset="50%" stop-color="#f5ede0" />
+      <stop offset="100%" stop-color="#cfbe9f" />
+    </linearGradient>
+    <linearGradient id="crown-pre-inf" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d9e5ee" />
+      <stop offset="40%" stop-color="#f0f5fa" />
+      <stop offset="100%" stop-color="#ffffff" />
+    </linearGradient>
+    <filter id="shadow-pre-inf" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.15" />
+    </filter>
+  </defs>
+  <!-- Raíz hacia abajo -->
+  <path d="M 21 51 C 18 65 19 82 23 92 C 25 84 27 72 30 60 C 33 72 35 84 37 92 C 41 82 42 65 39 51 Z" fill="url(#root-pre-inf)" filter="url(#shadow-pre-inf)" stroke="#b8a688" stroke-width="0.8"/>
+  <!-- Cuello cervical -->
+  <path d="M 15 51 C 23 55 37 55 45 51" fill="none" stroke="#e08f8f" stroke-width="1.3" stroke-linecap="round"/>
+  <!-- Corona bicuspídea apuntando arriba -->
+  <path d="M 15 51 C 11 40 11 24 16 14 C 19 8 23 6 25 6 C 28 8 29 10 30 10 C 31 10 32 8 35 6 C 37 6 41 8 44 14 C 49 24 49 40 45 51 C 38 54 22 54 15 51 Z" fill="url(#crown-pre-inf)" filter="url(#shadow-pre-inf)" stroke="#adc3d4" stroke-width="1"/>
+  <!-- Surco -->
+  <path d="M 30 10 L 30 35" stroke="#bcd0df" stroke-width="1.1" stroke-linecap="round"/>
+  <!-- Brillos -->
+  <path d="M 18 42 C 15 33 16 22 20 16" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+</svg>

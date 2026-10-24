@@ -71,5 +71,8 @@ router.use('/doctores', doctoresRoutes);
 const tratamientosRoutes = require('./tratamientos.routes');
 router.use('/tratamientos', tratamientosRoutes);
 
+const piezasDentalesRoutes = require('./piezas-dentales.routes');
+router.use('/piezas-dentales', piezasDentalesRoutes);
+
 module.exports = router;
 
